@@ -54,7 +54,11 @@ const ProfileDropdown: React.FC = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-white/20 dark:hover:bg-zinc-700/50">
+        <Button 
+          variant="ghost" 
+          className="relative h-10 w-10 rounded-full hover:bg-white/20 dark:hover:bg-zinc-700/50"
+          onClick={(e) => e.stopPropagation()}
+        >
           <Avatar className="h-10 w-10 border-2 border-white/20 shadow-lg">
             <AvatarFallback className="bg-gradient-to-br from-amber-400 to-orange-500 text-white text-sm font-bold">
               {getInitials(currentUser.name)}
@@ -68,6 +72,7 @@ const ProfileDropdown: React.FC = () => {
         forceMount
         side="bottom"
         sideOffset={8}
+        onClick={(e) => e.stopPropagation()}
       >
         <DropdownMenuLabel className="font-normal p-4">
           <div className="flex flex-col space-y-2">
