@@ -21,15 +21,32 @@ const queryClient = new QueryClient();
 const AuthenticatedApp: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, currentUser } = useBulletproofAuth();
+  const { isAuthenticated, currentUser, isLoading } = useBulletproofAuth();
 
   useEffect(() => {
+    // Only redirect if we're on the root path and authenticated
     if (isAuthenticated && currentUser && location.pathname === '/') {
       console.log('User authenticated, redirecting to home');
       navigate('/home', { replace: true });
     }
   }, [isAuthenticated, currentUser, navigate, location.pathname]);
 
+  // Show loading while authentication is being checked
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-zinc-900 dark:via-black dark:to-zinc-800">
+        <div className="mb-6 text-amber-600 dark:text-amber-400 text-xl font-medium">
+          Checking authentication...
+        </div>
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-amber-200 dark:border-amber-800 rounded-full animate-spin"></div>
+          <div className="absolute top-0 left-0 w-16 h-16 border-4 border-transparent border-t-amber-500 rounded-full animate-spin"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show identity system if not authenticated
   if (!isAuthenticated) {
     return <IdentitySystem onAuthSuccess={() => {
       console.log('Auth success, navigating to home');
@@ -37,6 +54,7 @@ const AuthenticatedApp: React.FC = () => {
     }} />;
   }
 
+  // Show app routes if authenticated
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
@@ -52,9 +70,8 @@ const AuthenticatedApp: React.FC = () => {
 };
 
 const AppContent: React.FC = () => {
-  const { isLoading, currentUser, deviceId } = useBulletproofAuth();
+  const { isLoading } = useBulletproofAuth();
   const [dbInitialized, setDbInitialized] = useState(false);
-  const [initializing, setInitializing] = useState(true);
 
   // Initialize IndexedDB when the app starts
   useEffect(() => {
@@ -70,29 +87,17 @@ const AppContent: React.FC = () => {
     init();
   }, []);
 
-  // Wait for both database and auth to initialize
-  useEffect(() => {
-    if (dbInitialized && !isLoading) {
-      setInitializing(false);
-    }
-  }, [dbInitialized, isLoading]);
-
-  // Show loading screen while initializing
-  if (initializing) {
+  // Show loading screen while initializing database
+  if (!dbInitialized) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-zinc-900 dark:via-black dark:to-zinc-800">
         <div className="mb-6 text-amber-600 dark:text-amber-400 text-xl font-medium">
-          {!dbInitialized ? 'Initializing database...' : 'Identifying your device...'}
+          Initializing database...
         </div>
         <div className="relative">
           <div className="w-16 h-16 border-4 border-amber-200 dark:border-amber-800 rounded-full animate-spin"></div>
           <div className="absolute top-0 left-0 w-16 h-16 border-4 border-transparent border-t-amber-500 rounded-full animate-spin"></div>
         </div>
-        {currentUser && (
-          <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
-            Welcome back, {currentUser.name}
-          </div>
-        )}
       </div>
     );
   }

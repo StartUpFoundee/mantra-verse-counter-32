@@ -100,19 +100,33 @@ export const useBulletproofAuth = () => {
       // Get bulletproof device ID
       const deviceId = await getBulletproofDeviceId();
       
-      // For privacy: Clear any existing sessions on fresh app start
-      // This ensures users must always go through account selection
-      await DeviceAccountManager.clearCurrentAccount();
-      AccountDataManager.clearCurrentAccount();
+      // Check if there's a current authenticated account
+      const currentAccount = await DeviceAccountManager.getCurrentAccount();
       
-      console.log('App initialized - requiring account selection for privacy');
-      
-      setAuthState({
-        isAuthenticated: false,
-        currentUser: null,
-        isLoading: false,
-        deviceId
-      });
+      if (currentAccount) {
+        // Account exists, restore session
+        setAuthState({
+          isAuthenticated: true,
+          currentUser: currentAccount,
+          isLoading: false,
+          deviceId
+        });
+        
+        // Set account context
+        AccountDataManager.setCurrentAccount(currentAccount.id);
+        
+        console.log('Restored session for:', currentAccount.name);
+      } else {
+        // No current account, require authentication
+        setAuthState({
+          isAuthenticated: false,
+          currentUser: null,
+          isLoading: false,
+          deviceId
+        });
+        
+        console.log('No authenticated session found - requiring login');
+      }
       
     } catch (error) {
       console.error('Error initializing bulletproof auth:', error);
