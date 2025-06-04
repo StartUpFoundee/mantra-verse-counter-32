@@ -61,7 +61,7 @@ const WelcomePopup: React.FC = () => {
         <DialogHeader>
           <div className="flex flex-col items-center text-center pt-6">
             <ModernCard className="w-20 h-20 flex items-center justify-center mb-4 bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-300/50 dark:border-amber-600/50">
-              <span className="text-4xl">{currentUser.symbolImage || "🕉️"}</span>
+              <span className="text-4xl">{currentUser.avatar || "🕉️"}</span>
             </ModernCard>
             <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
               Namaste, {currentUser.name} Ji
