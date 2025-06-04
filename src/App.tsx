@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -16,7 +17,14 @@ import { initializeDatabase } from "./utils/indexedDBUtils";
 import { useBulletproofAuth } from "./hooks/useBulletproofAuth";
 import { Loader } from "lucide-react";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+      gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    },
+  },
+});
 
 const LoadingScreen: React.FC<{ message?: string }> = ({ message = "Loading..." }) => {
   return (
@@ -37,19 +45,29 @@ const AuthenticatedApp: React.FC = () => {
   const location = useLocation();
   const { isAuthenticated, currentUser, isLoading } = useBulletproofAuth();
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [hasInitializedAuth, setHasInitializedAuth] = useState(false);
 
   useEffect(() => {
-    // Clear session data when not authenticated
-    if (!isAuthenticated && location.pathname !== '/') {
-      sessionStorage.removeItem('current_authenticated_account');
-      sessionStorage.removeItem('currentBrowserSession'); // Clear browser session tracking
-      navigate('/', { replace: true });
+    // Only clear session data on complete logout, not on page navigation
+    if (!isAuthenticated && !isLoading && hasInitializedAuth) {
+      const isCompleteLogout = !sessionStorage.getItem('current_authenticated_account');
+      if (isCompleteLogout && location.pathname !== '/') {
+        sessionStorage.removeItem('currentBrowserSession');
+        navigate('/', { replace: true });
+      }
     }
-  }, []);
+  }, [isAuthenticated, isLoading, hasInitializedAuth, location.pathname, navigate]);
 
   useEffect(() => {
-    // Handle post-login transition with animation
-    if (isAuthenticated && currentUser && location.pathname === '/') {
+    // Mark that auth has been initialized
+    if (!isLoading) {
+      setHasInitializedAuth(true);
+    }
+  }, [isLoading]);
+
+  useEffect(() => {
+    // Handle post-login transition with animation only on login page
+    if (isAuthenticated && currentUser && location.pathname === '/' && hasInitializedAuth) {
       setIsTransitioning(true);
       console.log('User authenticated, redirecting to home with transition');
       
@@ -57,12 +75,12 @@ const AuthenticatedApp: React.FC = () => {
       setTimeout(() => {
         navigate('/home', { replace: true });
         setIsTransitioning(false);
-      }, 1000); // 1 second transition
+      }, 800); // Reduced transition time
     }
-  }, [isAuthenticated, currentUser, navigate, location.pathname]);
+  }, [isAuthenticated, currentUser, navigate, location.pathname, hasInitializedAuth]);
 
-  // Show loading while authentication is being checked
-  if (isLoading) {
+  // Show loading only on initial authentication check
+  if (isLoading && !hasInitializedAuth) {
     return <LoadingScreen message="Checking authentication..." />;
   }
 
@@ -72,7 +90,7 @@ const AuthenticatedApp: React.FC = () => {
   }
 
   // Show identity system if not authenticated
-  if (!isAuthenticated) {
+  if (!isAuthenticated && hasInitializedAuth) {
     return <IdentitySystem onAuthSuccess={() => {
       console.log('Auth success, starting transition');
       setIsTransitioning(true);
@@ -96,20 +114,36 @@ const AuthenticatedApp: React.FC = () => {
 
 const AppContent: React.FC = () => {
   const [dbInitialized, setDbInitialized] = useState(false);
+  const [dbInitStarted, setDbInitStarted] = useState(false);
 
   // Initialize IndexedDB when the app starts
   useEffect(() => {
-    const init = async () => {
-      try {
-        await initializeDatabase();
-        setDbInitialized(true);
-      } catch (error) {
-        console.error("Database initialization failed:", error);
-        setDbInitialized(true); // Continue anyway with localStorage fallback
-      }
-    };
-    init();
-  }, []);
+    if (!dbInitStarted) {
+      setDbInitStarted(true);
+      const init = async () => {
+        try {
+          // Check if DB is already initialized
+          const dbExists = await new Promise((resolve) => {
+            const request = indexedDB.open('mantraVerseDB');
+            request.onsuccess = () => {
+              request.result.close();
+              resolve(true);
+            };
+            request.onerror = () => resolve(false);
+          });
+
+          if (!dbExists) {
+            await initializeDatabase();
+          }
+          setDbInitialized(true);
+        } catch (error) {
+          console.error("Database initialization failed:", error);
+          setDbInitialized(true); // Continue anyway with localStorage fallback
+        }
+      };
+      init();
+    }
+  }, [dbInitStarted]);
 
   // Show loading screen while initializing database
   if (!dbInitialized) {

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mic, Hand, Infinity, Clock, Sparkles, Calendar } from "lucide-react";
@@ -17,36 +18,46 @@ const HomePage: React.FC = () => {
   const [lifetimeCount, setLifetimeCount] = useState<number>(0);
   const [todayCount, setTodayCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [dataLoaded, setDataLoaded] = useState<boolean>(false);
 
   useEffect(() => {
     const loadData = async () => {
       if (!isAuthenticated || authLoading) return;
       
-      setIsLoading(true);
-      try {
-        const lifetime = await getLifetimeCount();
-        const today = await getTodayCount();
-        
-        setLifetimeCount(lifetime);
-        setTodayCount(today);
-      } catch (error) {
-        console.error("Error loading data:", error);
-        toast.error("There was an error loading your data. Please try again.");
-      } finally {
+      // Only load data if not already loaded
+      if (!dataLoaded) {
+        setIsLoading(true);
+        try {
+          // Load data in parallel for faster loading
+          const [lifetime, today] = await Promise.all([
+            getLifetimeCount(),
+            getTodayCount()
+          ]);
+          
+          setLifetimeCount(lifetime);
+          setTodayCount(today);
+          setDataLoaded(true);
+        } catch (error) {
+          console.error("Error loading data:", error);
+          toast.error("There was an error loading your data. Please try again.");
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
         setIsLoading(false);
       }
     };
     
     loadData();
-  }, [isAuthenticated, authLoading]);
+  }, [isAuthenticated, authLoading, dataLoaded]);
 
   // Don't render anything if not authenticated - App.tsx will handle showing IdentitySystem
   if (!isAuthenticated) {
     return null;
   }
 
-  // Show loading while data is being fetched
-  if (isLoading || authLoading) {
+  // Show loading while data is being fetched (only on initial load)
+  if ((isLoading && !dataLoaded) || authLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-zinc-900 dark:via-black dark:to-zinc-800">
         <div className="mb-6 text-amber-600 dark:text-amber-400 text-xl font-medium">
@@ -61,7 +72,7 @@ const HomePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-zinc-900 dark:via-black dark:to-zinc-800">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-zinc-900 dark:via-black dark:to-zinc-800 transition-all duration-300">
       <WelcomePopup />
       
       {/* Header - Mobile Responsive */}
