@@ -19,18 +19,25 @@ const WelcomePopup: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated && currentUser) {
-      // Check if we've already shown the popup in this session
-      const hasShownInSession = sessionStorage.getItem('welcomePopupShown');
+      // Check if this is the initial website visit (not just page navigation)
+      const hasShownInBrowserSession = localStorage.getItem('welcomePopupShownInBrowser');
+      const currentSessionId = sessionStorage.getItem('currentBrowserSession');
       
-      if (!hasShownInSession) {
-        // Show the welcome popup after a short delay for better UX
-        const timer = setTimeout(() => {
-          setIsOpen(true);
-          // Mark that we've shown the popup in this session
-          sessionStorage.setItem('welcomePopupShown', 'true');
-        }, 500);
+      // If no browser session exists, this is a fresh website visit
+      if (!currentSessionId) {
+        // Create a new session ID for this browser session
+        const newSessionId = `session_${Date.now()}_${Math.random()}`;
+        sessionStorage.setItem('currentBrowserSession', newSessionId);
         
-        return () => clearTimeout(timer);
+        // Show popup only if we haven't shown it in this browser session
+        if (!hasShownInBrowserSession) {
+          const timer = setTimeout(() => {
+            setIsOpen(true);
+            localStorage.setItem('welcomePopupShownInBrowser', 'true');
+          }, 500);
+          
+          return () => clearTimeout(timer);
+        }
       }
     }
   }, [isAuthenticated, currentUser]);

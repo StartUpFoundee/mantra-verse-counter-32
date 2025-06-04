@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -40,10 +39,10 @@ const AuthenticatedApp: React.FC = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
-    // Clear welcome popup flag when not authenticated
+    // Clear session data when not authenticated
     if (!isAuthenticated && location.pathname !== '/') {
       sessionStorage.removeItem('current_authenticated_account');
-      sessionStorage.removeItem('welcomePopupShown'); // Clear welcome popup flag
+      sessionStorage.removeItem('currentBrowserSession'); // Clear browser session tracking
       navigate('/', { replace: true });
     }
   }, []);
@@ -53,9 +52,6 @@ const AuthenticatedApp: React.FC = () => {
     if (isAuthenticated && currentUser && location.pathname === '/') {
       setIsTransitioning(true);
       console.log('User authenticated, redirecting to home with transition');
-      
-      // Clear welcome popup flag so it shows on the home page
-      sessionStorage.removeItem('welcomePopupShown');
       
       // Show loading animation for smoother transition
       setTimeout(() => {
