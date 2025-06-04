@@ -40,9 +40,10 @@ const AuthenticatedApp: React.FC = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
-    // Clear any existing sessionStorage on app start to force fresh login
+    // Clear welcome popup flag when not authenticated
     if (!isAuthenticated && location.pathname !== '/') {
-      sessionStorage.clear();
+      sessionStorage.removeItem('current_authenticated_account');
+      sessionStorage.removeItem('welcomePopupShown'); // Clear welcome popup flag
       navigate('/', { replace: true });
     }
   }, []);
@@ -52,6 +53,9 @@ const AuthenticatedApp: React.FC = () => {
     if (isAuthenticated && currentUser && location.pathname === '/') {
       setIsTransitioning(true);
       console.log('User authenticated, redirecting to home with transition');
+      
+      // Clear welcome popup flag so it shows on the home page
+      sessionStorage.removeItem('welcomePopupShown');
       
       // Show loading animation for smoother transition
       setTimeout(() => {

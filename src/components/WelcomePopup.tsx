@@ -18,24 +18,32 @@ const WelcomePopup: React.FC = () => {
   const [userData, setUserData] = useState<any>(null);
 
   useEffect(() => {
-    // Load user data early to improve perceived performance
     const userDataObj = getUserData();
     setUserData(userDataObj);
     
-    // Check if this is a page reload by checking if the popup was shown in this session
-    const hasShownInSession = sessionStorage.getItem('welcomePopupShown');
-    
-    if (userDataObj && !hasShownInSession) {
-      // Only show popup on page reload, not on navigation
-      const isPageReload = !window.performance || performance.navigation.type === performance.navigation.TYPE_RELOAD;
+    if (userDataObj) {
+      // Check if we've already shown the popup in this session
+      const hasShownInSession = sessionStorage.getItem('welcomePopupShown');
       
-      if (isPageReload || !hasShownInSession) {
-        setIsOpen(true);
-        // Mark that we've shown the popup in this session
-        sessionStorage.setItem('welcomePopupShown', 'true');
+      if (!hasShownInSession) {
+        // Show the welcome popup after a short delay for better UX
+        const timer = setTimeout(() => {
+          setIsOpen(true);
+          // Mark that we've shown the popup in this session
+          sessionStorage.setItem('welcomePopupShown', 'true');
+        }, 500);
+        
+        return () => clearTimeout(timer);
       }
     }
   }, []);
+
+  // Get a fresh quote when the popup opens
+  useEffect(() => {
+    if (isOpen) {
+      setQuote(getRandomDefaultQuote());
+    }
+  }, [isOpen]);
 
   const handleClose = () => {
     setIsOpen(false);
