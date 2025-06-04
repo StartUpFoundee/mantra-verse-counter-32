@@ -15,42 +15,67 @@ import NotFound from "./pages/NotFound";
 import IdentitySystem from "./components/IdentitySystem";
 import { initializeDatabase } from "./utils/indexedDBUtils";
 import { useBulletproofAuth } from "./hooks/useBulletproofAuth";
+import { Loader } from "lucide-react";
 
 const queryClient = new QueryClient();
+
+const LoadingScreen: React.FC<{ message?: string }> = ({ message = "Loading..." }) => {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-zinc-900 dark:via-black dark:to-zinc-800">
+      <div className="mb-6 text-amber-600 dark:text-amber-400 text-xl font-medium">
+        {message}
+      </div>
+      <div className="relative">
+        <Loader className="w-16 h-16 text-amber-500 animate-spin" />
+        <div className="absolute top-0 left-0 w-16 h-16 border-4 border-transparent border-t-amber-500 rounded-full animate-spin"></div>
+      </div>
+    </div>
+  );
+};
 
 const AuthenticatedApp: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, currentUser, isLoading } = useBulletproofAuth();
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
-    // Only redirect if we're on the root path and authenticated
+    // Clear any existing sessionStorage on app start to force fresh login
+    if (!isAuthenticated && location.pathname !== '/') {
+      sessionStorage.clear();
+      navigate('/', { replace: true });
+    }
+  }, []);
+
+  useEffect(() => {
+    // Handle post-login transition with animation
     if (isAuthenticated && currentUser && location.pathname === '/') {
-      console.log('User authenticated, redirecting to home');
-      navigate('/home', { replace: true });
+      setIsTransitioning(true);
+      console.log('User authenticated, redirecting to home with transition');
+      
+      // Show loading animation for smoother transition
+      setTimeout(() => {
+        navigate('/home', { replace: true });
+        setIsTransitioning(false);
+      }, 1000); // 1 second transition
     }
   }, [isAuthenticated, currentUser, navigate, location.pathname]);
 
   // Show loading while authentication is being checked
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-zinc-900 dark:via-black dark:to-zinc-800">
-        <div className="mb-6 text-amber-600 dark:text-amber-400 text-xl font-medium">
-          Checking authentication...
-        </div>
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-amber-200 dark:border-amber-800 rounded-full animate-spin"></div>
-          <div className="absolute top-0 left-0 w-16 h-16 border-4 border-transparent border-t-amber-500 rounded-full animate-spin"></div>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Checking authentication..." />;
+  }
+
+  // Show transition loading after login
+  if (isTransitioning) {
+    return <LoadingScreen message="Welcome back! Loading your spiritual journey..." />;
   }
 
   // Show identity system if not authenticated
   if (!isAuthenticated) {
     return <IdentitySystem onAuthSuccess={() => {
-      console.log('Auth success, navigating to home');
-      navigate('/home', { replace: true });
+      console.log('Auth success, starting transition');
+      setIsTransitioning(true);
     }} />;
   }
 
@@ -70,7 +95,6 @@ const AuthenticatedApp: React.FC = () => {
 };
 
 const AppContent: React.FC = () => {
-  const { isLoading } = useBulletproofAuth();
   const [dbInitialized, setDbInitialized] = useState(false);
 
   // Initialize IndexedDB when the app starts
@@ -89,17 +113,7 @@ const AppContent: React.FC = () => {
 
   // Show loading screen while initializing database
   if (!dbInitialized) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-zinc-900 dark:via-black dark:to-zinc-800">
-        <div className="mb-6 text-amber-600 dark:text-amber-400 text-xl font-medium">
-          Initializing database...
-        </div>
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-amber-200 dark:border-amber-800 rounded-full animate-spin"></div>
-          <div className="absolute top-0 left-0 w-16 h-16 border-4 border-transparent border-t-amber-500 rounded-full animate-spin"></div>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Initializing database..." />;
   }
 
   return <AuthenticatedApp />;
