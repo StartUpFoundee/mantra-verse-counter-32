@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { UserAccount, DataPersistenceManager } from '@/utils/advancedIdUtils';
 import { DeviceAccountManager } from '@/utils/deviceAccountManager';
@@ -96,13 +97,47 @@ export const useBulletproofAuth = () => {
     try {
       setAuthState(prev => ({ ...prev, isLoading: true }));
       
-      // Force clear sessionStorage on app start to ensure fresh login requirement
-      sessionStorage.removeItem('current_authenticated_account');
-      
       // Get bulletproof device ID
       const deviceId = await getBulletproofDeviceId();
       
-      // Always require fresh authentication - don't restore any sessions
+      // Check if there's a current authenticated session
+      const currentSession = sessionStorage.getItem('current_authenticated_account');
+      
+      if (currentSession) {
+        try {
+          const account = JSON.parse(currentSession);
+          console.log('Restoring authenticated session for:', account.name);
+          
+          // Verify the account still exists
+          const manager = new DataPersistenceManager(account.slot);
+          const accountData = await manager.getData('account');
+          
+          if (accountData && accountData.id === account.id) {
+            // Session is valid, restore authentication
+            setAuthState({
+              isAuthenticated: true,
+              currentUser: account,
+              isLoading: false,
+              deviceId
+            });
+            
+            // Set account context
+            AccountDataManager.setCurrentAccount(account.id);
+            
+            console.log('Session restored successfully for:', account.name);
+            return;
+          } else {
+            // Account no longer exists, clear invalid session
+            console.log('Account no longer exists, clearing session');
+            sessionStorage.removeItem('current_authenticated_account');
+          }
+        } catch (e) {
+          console.error('Error parsing session data:', e);
+          sessionStorage.removeItem('current_authenticated_account');
+        }
+      }
+      
+      // No valid session found, require fresh authentication
       setAuthState({
         isAuthenticated: false,
         currentUser: null,
@@ -113,7 +148,7 @@ export const useBulletproofAuth = () => {
       // Clear account context
       AccountDataManager.clearCurrentAccount();
       
-      console.log('Authentication cleared - requiring fresh login');
+      console.log('No valid session found - requiring authentication');
       
     } catch (error) {
       console.error('Error initializing bulletproof auth:', error);
