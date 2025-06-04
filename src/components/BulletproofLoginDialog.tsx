@@ -34,14 +34,18 @@ const BulletproofLoginDialog: React.FC<BulletproofLoginDialogProps> = ({
     setIsLogging(true);
     try {
       await login(targetSlot, password);
+      console.log('Login successful, updating auth state...');
       toast.success('Login successful! Welcome back!');
       
-      // Small delay to ensure state is updated before redirect
+      // Ensure auth state is fully updated before triggering success
+      // Use a longer delay to ensure state propagation
       setTimeout(() => {
+        console.log('Triggering onSuccess callback');
         onSuccess();
-      }, 100);
+      }, 300);
       
     } catch (error) {
+      console.error('Login failed:', error);
       toast.error(error instanceof Error ? error.message : 'Login failed');
       setIsLogging(false);
     }

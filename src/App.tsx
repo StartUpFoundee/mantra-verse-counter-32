@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -21,7 +20,38 @@ const queryClient = new QueryClient();
 const AuthenticatedApp: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, currentUser, isLoading } = useBulletproofAuth();
+  const { isAuthenticated, currentUser, isLoading, logout } = useBulletproofAuth();
+
+  // Add browser close detection for automatic logout
+  useEffect(() => {
+    const handleBeforeUnload = async () => {
+      console.log('Browser closing, logging out user...');
+      try {
+        await logout();
+      } catch (error) {
+        console.error('Error during browser close logout:', error);
+      }
+    };
+
+    // Handle page unload (browser close, tab close, refresh)
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    // Handle page visibility change (browser minimized, tab switched)
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        console.log('Page hidden, user may be closing browser');
+      } else {
+        console.log('Page visible again');
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [logout]);
 
   useEffect(() => {
     // Only redirect if we're on the root path and authenticated
