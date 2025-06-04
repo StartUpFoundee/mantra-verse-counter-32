@@ -37,6 +37,7 @@ const AuthenticatedApp: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, currentUser, isLoading } = useBulletproofAuth();
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     // Clear any existing sessionStorage on app start to force fresh login
@@ -47,10 +48,16 @@ const AuthenticatedApp: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Handle post-login navigation immediately without delay
+    // Handle post-login transition with animation
     if (isAuthenticated && currentUser && location.pathname === '/') {
-      console.log('User authenticated, redirecting to home immediately');
-      navigate('/home', { replace: true });
+      setIsTransitioning(true);
+      console.log('User authenticated, redirecting to home with transition');
+      
+      // Show loading animation for smoother transition
+      setTimeout(() => {
+        navigate('/home', { replace: true });
+        setIsTransitioning(false);
+      }, 1000); // 1 second transition
     }
   }, [isAuthenticated, currentUser, navigate, location.pathname]);
 
@@ -59,10 +66,16 @@ const AuthenticatedApp: React.FC = () => {
     return <LoadingScreen message="Checking authentication..." />;
   }
 
+  // Show transition loading after login
+  if (isTransitioning) {
+    return <LoadingScreen message="Welcome back! Loading your spiritual journey..." />;
+  }
+
   // Show identity system if not authenticated
   if (!isAuthenticated) {
     return <IdentitySystem onAuthSuccess={() => {
-      console.log('Auth success, will redirect immediately');
+      console.log('Auth success, starting transition');
+      setIsTransitioning(true);
     }} />;
   }
 
