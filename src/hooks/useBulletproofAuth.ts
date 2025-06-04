@@ -25,7 +25,7 @@ export const useBulletproofAuth = () => {
     initializeBulletproofAuth();
   }, []);
 
-  // Cross-tab synchronization
+  // Cross-tab synchronization using sessionStorage
   useEffect(() => {
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === 'current_authenticated_account') {
@@ -100,7 +100,7 @@ export const useBulletproofAuth = () => {
       // Get bulletproof device ID
       const deviceId = await getBulletproofDeviceId();
       
-      // Check if there's a current authenticated account
+      // Check if there's a current authenticated account in sessionStorage
       const currentAccount = await DeviceAccountManager.getCurrentAccount();
       
       if (currentAccount) {

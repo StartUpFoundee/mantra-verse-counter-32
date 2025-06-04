@@ -1,3 +1,4 @@
+
 import { getBulletproofDeviceId, BulletproofStorage } from './enhancedDeviceFingerprint';
 import { UserAccount, DataPersistenceManager } from './advancedIdUtils';
 import { AccountDataManager } from './accountDataManager';
@@ -219,8 +220,7 @@ export class DeviceAccountManager {
     // Critical: Set account context for data access
     AccountDataManager.setCurrentAccount(account.id);
     
-    // Store in multiple places for bulletproof persistence
-    localStorage.setItem('current_authenticated_account', JSON.stringify(account));
+    // Store in sessionStorage instead of localStorage for authentication data
     sessionStorage.setItem('current_authenticated_account', JSON.stringify(account));
     
     // Broadcast to other tabs
@@ -241,7 +241,7 @@ export class DeviceAccountManager {
     // Clear account context
     AccountDataManager.clearCurrentAccount();
     
-    localStorage.removeItem('current_authenticated_account');
+    // Clear sessionStorage instead of localStorage for authentication data
     sessionStorage.removeItem('current_authenticated_account');
     
     // Broadcast to other tabs
@@ -321,8 +321,8 @@ export class DeviceAccountManager {
       lastUpdated: Date.now()
     };
     
-    // Store in multiple places
-    localStorage.setItem(`${this.DEVICE_ACCOUNTS_KEY}_${deviceId}`, JSON.stringify(mapping));
+    // Store in sessionStorage instead of localStorage for device accounts mapping
+    sessionStorage.setItem(`${this.DEVICE_ACCOUNTS_KEY}_${deviceId}`, JSON.stringify(mapping));
     
     try {
       await BulletproofStorage.storeDeviceId(deviceId, { accountsMapping: mapping });

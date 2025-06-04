@@ -31,16 +31,16 @@ export const useAccountAuth = () => {
       try {
         setAuthState(prev => ({ ...prev, isLoading: true }));
         
-        // Check for persisted current account in multiple storage layers
+        // Check for persisted current account in sessionStorage only
         let persistedAccount: UserAccount | null = null;
         
-        // First check localStorage for quick access
-        const localStoredAccount = localStorage.getItem(CURRENT_ACCOUNT_KEY);
-        if (localStoredAccount) {
+        // Check sessionStorage for current session
+        const sessionStoredAccount = sessionStorage.getItem(CURRENT_ACCOUNT_KEY);
+        if (sessionStoredAccount) {
           try {
-            persistedAccount = JSON.parse(localStoredAccount);
+            persistedAccount = JSON.parse(sessionStoredAccount);
           } catch (e) {
-            console.error('Error parsing localStorage account:', e);
+            console.error('Error parsing sessionStorage account:', e);
           }
         }
         
@@ -50,8 +50,8 @@ export const useAccountAuth = () => {
           const globalCurrent = await globalManager.getData('globalCurrentAccount');
           if (globalCurrent?.account) {
             persistedAccount = globalCurrent.account;
-            // Sync to localStorage for faster future access
-            localStorage.setItem(CURRENT_ACCOUNT_KEY, JSON.stringify(persistedAccount));
+            // Sync to sessionStorage for current session
+            sessionStorage.setItem(CURRENT_ACCOUNT_KEY, JSON.stringify(persistedAccount));
           }
         }
         
@@ -78,7 +78,7 @@ export const useAccountAuth = () => {
             return;
           } else {
             // Account no longer exists, clear persisted data
-            localStorage.removeItem(CURRENT_ACCOUNT_KEY);
+            sessionStorage.removeItem(CURRENT_ACCOUNT_KEY);
             const globalManager = new DataPersistenceManager(1);
             await globalManager.storeData('globalCurrentAccount', null);
           }
@@ -178,8 +178,8 @@ export const useAccountAuth = () => {
         isLoading: false
       }));
       
-      // Persist to storage
-      localStorage.setItem(CURRENT_ACCOUNT_KEY, JSON.stringify(currentAccount));
+      // Persist to sessionStorage instead of localStorage
+      sessionStorage.setItem(CURRENT_ACCOUNT_KEY, JSON.stringify(currentAccount));
       
       // Broadcast to other tabs
       if ('BroadcastChannel' in window) {
@@ -210,8 +210,8 @@ export const useAccountAuth = () => {
         isLoading: false
       }));
 
-      // Persist session data
-      localStorage.setItem(CURRENT_ACCOUNT_KEY, JSON.stringify(account));
+      // Persist session data in sessionStorage
+      sessionStorage.setItem(CURRENT_ACCOUNT_KEY, JSON.stringify(account));
       
       // Store in IndexedDB for reliability
       const globalManager = new DataPersistenceManager(1);
@@ -278,8 +278,8 @@ export const useAccountAuth = () => {
         isLocked: false
       });
       
-      // Clear all persisted session data
-      localStorage.removeItem(CURRENT_ACCOUNT_KEY);
+      // Clear all persisted session data from sessionStorage
+      sessionStorage.removeItem(CURRENT_ACCOUNT_KEY);
       
       // Clear global current account
       const globalManager = new DataPersistenceManager(1);

@@ -1,6 +1,4 @@
 
-import { UserAccount } from './advancedIdUtils';
-
 /**
  * Account Data Manager - Ensures complete data isolation between accounts
  * Each account gets its own data namespace to prevent data mixing
@@ -43,26 +41,20 @@ export class AccountDataManager {
   }
   
   /**
-   * Store data for the current account
+   * Store data for the current account using sessionStorage for session data
    */
   static async storeAccountData(key: string, data: any, accountId?: string): Promise<void> {
     try {
       const accountKey = this.getAccountKey(key, accountId);
       
-      // Store in multiple layers for redundancy
-      localStorage.setItem(accountKey, JSON.stringify({
-        data,
-        timestamp: Date.now(),
-        accountId: accountId || this.currentAccountId
-      }));
-      
+      // Store in sessionStorage for session-scoped data
       sessionStorage.setItem(accountKey, JSON.stringify({
         data,
         timestamp: Date.now(),
         accountId: accountId || this.currentAccountId
       }));
       
-      // Also store in IndexedDB for persistence
+      // Also store in IndexedDB for persistence across sessions
       await this.storeInIndexedDB(accountKey, data);
       
       console.log(`Stored data for account ${accountId || this.currentAccountId}:`, key);
@@ -79,20 +71,13 @@ export class AccountDataManager {
     try {
       const accountKey = this.getAccountKey(key, accountId);
       
-      // Try IndexedDB first
+      // Try IndexedDB first for persistent data
       const idbData = await this.getFromIndexedDB(accountKey);
       if (idbData) {
         return idbData;
       }
       
-      // Fallback to localStorage
-      const localData = localStorage.getItem(accountKey);
-      if (localData) {
-        const parsed = JSON.parse(localData);
-        return parsed.data;
-      }
-      
-      // Fallback to sessionStorage
+      // Fallback to sessionStorage for session data
       const sessionData = sessionStorage.getItem(accountKey);
       if (sessionData) {
         const parsed = JSON.parse(sessionData);
@@ -113,7 +98,6 @@ export class AccountDataManager {
     try {
       const accountKey = this.getAccountKey(key, accountId);
       
-      localStorage.removeItem(accountKey);
       sessionStorage.removeItem(accountKey);
       await this.deleteFromIndexedDB(accountKey);
       
@@ -133,9 +117,9 @@ export class AccountDataManager {
     const prefix = `account_${currentId}_`;
     const keys: string[] = [];
     
-    // Check localStorage
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
+    // Check sessionStorage
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
       if (key && key.startsWith(prefix)) {
         keys.push(key.replace(prefix, ''));
       }
@@ -158,47 +142,9 @@ export class AccountDataManager {
   }
   
   /**
-   * Migrate data to account-specific storage
-   */
-  static async migrateToAccountStorage(account: UserAccount): Promise<void> {
-    console.log(`Migrating data to account-specific storage for: ${account.id}`);
-    
-    // List of common data keys that need to be migrated
-    const commonKeys = [
-      'mantraCount',
-      'dailyGoal',
-      'streakCount',
-      'userPreferences',
-      'chantingHistory',
-      'spiritualStats',
-      'activeDays',
-      'audioSettings',
-      'themePreference',
-      'lastSession'
-    ];
-    
-    for (const key of commonKeys) {
-      // Check if non-account-specific data exists
-      const existingData = localStorage.getItem(key) || sessionStorage.getItem(key);
-      if (existingData) {
-        try {
-          const data = JSON.parse(existingData);
-          await this.storeAccountData(key, data, account.id);
-          
-          // Remove the old non-account-specific data
-          localStorage.removeItem(key);
-          sessionStorage.removeItem(key);
-        } catch (error) {
-          console.error(`Failed to migrate ${key}:`, error);
-        }
-      }
-    }
-  }
-  
-  /**
    * Switch account data context
    */
-  static async switchAccountContext(fromAccountId: string | null, toAccount: UserAccount): Promise<void> {
+  static async switchAccountContext(fromAccountId: string | null, toAccount: any): Promise<void> {
     console.log(`Switching account context from ${fromAccountId} to ${toAccount.id}`);
     
     // Save current session data to the previous account if there was one
@@ -281,10 +227,6 @@ export class AccountDataManager {
     
     sessionKeys.forEach(key => {
       sessionStorage.removeItem(key);
-      // Also remove from localStorage if it's not account-specific
-      if (!key.startsWith('account_')) {
-        localStorage.removeItem(key);
-      }
     });
     
     console.log('Current session cleared');
