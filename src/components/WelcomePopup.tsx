@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { getUserData } from "@/utils/spiritualIdUtils";
+import { useBulletproofAuth } from "@/hooks/useBulletproofAuth";
 import { 
   Dialog,
   DialogContent,
@@ -15,13 +15,10 @@ import ModernCard from "./ModernCard";
 const WelcomePopup: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [quote, setQuote] = useState(getRandomDefaultQuote());
-  const [userData, setUserData] = useState<any>(null);
+  const { currentUser, isAuthenticated } = useBulletproofAuth();
 
   useEffect(() => {
-    const userDataObj = getUserData();
-    setUserData(userDataObj);
-    
-    if (userDataObj) {
+    if (isAuthenticated && currentUser) {
       // Check if we've already shown the popup in this session
       const hasShownInSession = sessionStorage.getItem('welcomePopupShown');
       
@@ -36,7 +33,7 @@ const WelcomePopup: React.FC = () => {
         return () => clearTimeout(timer);
       }
     }
-  }, []);
+  }, [isAuthenticated, currentUser]);
 
   // Get a fresh quote when the popup opens
   useEffect(() => {
@@ -49,7 +46,7 @@ const WelcomePopup: React.FC = () => {
     setIsOpen(false);
   };
 
-  if (!userData) return null;
+  if (!isAuthenticated || !currentUser) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -64,10 +61,10 @@ const WelcomePopup: React.FC = () => {
         <DialogHeader>
           <div className="flex flex-col items-center text-center pt-6">
             <ModernCard className="w-20 h-20 flex items-center justify-center mb-4 bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-300/50 dark:border-amber-600/50">
-              <span className="text-4xl">{userData.symbolImage || "🕉️"}</span>
+              <span className="text-4xl">{currentUser.symbolImage || "🕉️"}</span>
             </ModernCard>
             <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
-              Namaste, {userData.name} Ji
+              Namaste, {currentUser.name} Ji
             </DialogTitle>
           </div>
         </DialogHeader>
