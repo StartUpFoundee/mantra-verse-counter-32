@@ -5,6 +5,7 @@ import { Mic, Hand, Infinity, Clock, Sparkles, Calendar } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import ProfileManager from "@/components/ProfileManager";
 import WelcomePopup from "@/components/WelcomePopup";
+import SpiritualProgressSteps from "@/components/SpiritualProgressSteps";
 import { getLifetimeCount, getTodayCount } from "@/utils/indexedDBUtils";
 import { toast } from "@/components/ui/sonner";
 import ModernCard from "@/components/ModernCard";
@@ -138,6 +139,11 @@ const HomePage: React.FC = () => {
                 gradient="bg-gradient-to-br from-pink-400 to-pink-600"
               />
             </div>
+          </div>
+
+          {/* Spiritual Progress Steps - NEW ADDITION */}
+          <div className="mb-6 lg:mb-8">
+            <SpiritualProgressSteps />
           </div>
           
           {/* Quick Actions - Mobile Responsive */}
