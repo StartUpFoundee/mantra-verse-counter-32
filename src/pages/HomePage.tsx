@@ -4,8 +4,7 @@ import { Mic, Hand, Infinity, Clock, Sparkles, Calendar } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import ProfileManager from "@/components/ProfileManager";
 import WelcomePopup from "@/components/WelcomePopup";
-import GoalButtons from "@/components/GoalButtons";
-import GoalDialog from "@/components/GoalDialog";
+import SpiritualRoadmapJourney from "@/components/SpiritualRoadmapJourney";
 import { getLifetimeCount, getTodayCount } from "@/utils/indexedDBUtils";
 import { toast } from "@/components/ui/sonner";
 import ModernCard from "@/components/ModernCard";
@@ -20,10 +19,6 @@ const HomePage: React.FC = () => {
   const [todayCount, setTodayCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [dataLoaded, setDataLoaded] = useState<boolean>(false);
-  
-  // Goal dialog states
-  const [showGoalDialog, setShowGoalDialog] = useState(false);
-  const [selectedGoalType, setSelectedGoalType] = useState<"weekly" | "monthly" | "yearly">("weekly");
 
   useEffect(() => {
     const loadData = async () => {
@@ -55,11 +50,6 @@ const HomePage: React.FC = () => {
     
     loadData();
   }, [isAuthenticated, authLoading, dataLoaded]);
-
-  const handleGoalClick = (goalType: "weekly" | "monthly" | "yearly") => {
-    setSelectedGoalType(goalType);
-    setShowGoalDialog(true);
-  };
 
   // Don't render anything if not authenticated - App.tsx will handle showing IdentitySystem
   if (!isAuthenticated) {
@@ -150,13 +140,9 @@ const HomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Goal Buttons - REPLACED Spiritual Roadmap Journey */}
+          {/* Spiritual Roadmap Journey - UPDATED */}
           <div className="mb-6 lg:mb-8">
-            <GoalButtons
-              onWeeklyGoalClick={() => handleGoalClick("weekly")}
-              onMonthlyGoalClick={() => handleGoalClick("monthly")}
-              onYearlyGoalClick={() => handleGoalClick("yearly")}
-            />
+            <SpiritualRoadmapJourney />
           </div>
           
           {/* Quick Actions - Mobile Responsive */}
@@ -213,13 +199,6 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </main>
-
-      {/* Goal Dialog */}
-      <GoalDialog
-        isOpen={showGoalDialog}
-        onClose={() => setShowGoalDialog(false)}
-        goalType={selectedGoalType}
-      />
       
       {/* Footer - Mobile Responsive */}
       <footer className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-t border-amber-200/50 dark:border-zinc-700/50 py-3 lg:py-4 safe-area-pb">
