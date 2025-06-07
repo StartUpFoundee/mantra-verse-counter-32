@@ -8,11 +8,13 @@ import { startTimeTracking } from '@/utils/timeTrackingUtils';
  */
 export const useTimeTracking = () => {
   useEffect(() => {
+    console.log('useTimeTracking hook initializing...');
     // Initialize time tracking system
     startTimeTracking();
     
     // The cleanup is handled inside startTimeTracking
     return () => {
+      console.log('useTimeTracking hook cleanup');
       // Cleanup is handled by the beforeunload event in startTimeTracking
     };
   }, []);

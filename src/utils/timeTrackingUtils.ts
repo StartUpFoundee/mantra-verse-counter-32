@@ -107,6 +107,7 @@ const shouldTrackTime = (): boolean => {
  */
 const updateActivity = () => {
   lastActivityTime = Date.now();
+  console.log('Activity detected, updating timestamp');
 };
 
 /**
@@ -140,20 +141,25 @@ export const startTimeTracking = (): void => {
   const startActiveTracking = () => {
     if (trackingInterval) return; // Already tracking
     
-    trackingInterval = setInterval(() => {
+    console.log('Starting active time tracking interval');
+    trackingInterval = setInterval(async () => {
       const now = Date.now();
       const timeSinceLastActivity = now - lastActivityTime;
       
       // Only record time if user has been active within last 30 seconds
       if (timeSinceLastActivity < 30000) {
-        recordTimeSpent(10); // Record 10 seconds every 10 seconds
+        console.log('User is active, recording 5 seconds of time');
+        await recordTimeSpent(5); // Record 5 seconds every 5 seconds
+      } else {
+        console.log('User inactive, not recording time');
       }
-    }, 10000); // Check every 10 seconds
+    }, 5000); // Check every 5 seconds for better accuracy
   };
   
   // Stop active tracking
   const stopActiveTracking = () => {
     if (trackingInterval) {
+      console.log('Stopping active time tracking interval');
       clearInterval(trackingInterval);
       trackingInterval = null;
     }
