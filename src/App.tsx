@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -14,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import IdentitySystem from "./components/IdentitySystem";
 import TimeTrackingPage from "./pages/TimeTrackingPage";
 import { initializeDatabase } from "./utils/indexedDBUtils";
+import { startTimeTracking } from "./utils/timeTrackingUtils";
 import { useBulletproofAuth } from "./hooks/useBulletproofAuth";
 import { Loader } from "lucide-react";
 
