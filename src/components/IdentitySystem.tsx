@@ -4,8 +4,9 @@ import { useBulletproofAuth } from '@/hooks/useBulletproofAuth';
 import ImprovedBulletproofAccountSelector from './ImprovedBulletproofAccountSelector';
 import MultiStepAccountCreation from './MultiStepAccountCreation';
 import BulletproofLoginDialog from './BulletproofLoginDialog';
+import OnboardingController from './OnboardingController';
 
-export type IdentityView = 'selector' | 'create' | 'login';
+export type IdentityView = 'onboarding' | 'selector' | 'create' | 'login';
 
 interface IdentitySystemProps {
   onAuthSuccess: () => void;
@@ -13,13 +14,17 @@ interface IdentitySystemProps {
 
 const IdentitySystem: React.FC<IdentitySystemProps> = ({ onAuthSuccess }) => {
   const { isAuthenticated } = useBulletproofAuth();
-  const [currentView, setCurrentView] = useState<IdentityView>('selector');
+  const [currentView, setCurrentView] = useState<IdentityView>('onboarding');
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
 
   // If authenticated, don't show identity system
   if (isAuthenticated) {
     return null;
   }
+
+  const handleOnboardingComplete = () => {
+    setCurrentView('selector');
+  };
 
   const handleCreateAccount = (slot: number) => {
     setSelectedSlot(slot);
@@ -53,6 +58,9 @@ const IdentitySystem: React.FC<IdentitySystemProps> = ({ onAuthSuccess }) => {
   };
 
   switch (currentView) {
+    case 'onboarding':
+      return <OnboardingController onComplete={handleOnboardingComplete} />;
+
     case 'create':
       return (
         <MultiStepAccountCreation

@@ -8,7 +8,7 @@ import {
   DialogTitle
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, RotateCcw } from "lucide-react";
 import { getRandomDefaultQuote } from "@/utils/spiritualQuotesService";
 import ModernCard from "./ModernCard";
 
@@ -53,6 +53,13 @@ const WelcomePopup: React.FC = () => {
     setIsOpen(false);
   };
 
+  const handleResetOnboarding = () => {
+    localStorage.removeItem('hasSeenOnboarding');
+    localStorage.removeItem('welcomePopupShownInBrowser');
+    sessionStorage.removeItem('currentBrowserSession');
+    window.location.reload();
+  };
+
   if (!isAuthenticated || !currentUser) return null;
 
   return (
@@ -87,12 +94,21 @@ const WelcomePopup: React.FC = () => {
           </p>
         </div>
         
-        <div className="mt-4 text-center">
+        <div className="mt-4 flex flex-col gap-2">
           <Button
             onClick={handleClose}
             className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-2 shadow-lg hover:shadow-xl transition-all duration-300"
           >
             Begin Practice
+          </Button>
+          
+          <Button
+            onClick={handleResetOnboarding}
+            variant="ghost"
+            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex items-center gap-1"
+          >
+            <RotateCcw className="w-3 h-3" />
+            Reset Onboarding (Dev)
           </Button>
         </div>
       </DialogContent>
