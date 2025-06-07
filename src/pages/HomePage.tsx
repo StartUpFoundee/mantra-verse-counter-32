@@ -1,11 +1,10 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mic, Hand, Infinity, Clock, Sparkles, Calendar } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import ProfileManager from "@/components/ProfileManager";
 import WelcomePopup from "@/components/WelcomePopup";
-import SpiritualProgressSteps from "@/components/SpiritualProgressSteps";
+import SpiritualRoadmapJourney from "@/components/SpiritualRoadmapJourney";
 import { getLifetimeCount, getTodayCount } from "@/utils/indexedDBUtils";
 import { toast } from "@/components/ui/sonner";
 import ModernCard from "@/components/ModernCard";
@@ -141,9 +140,9 @@ const HomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Spiritual Progress Steps - NEW ADDITION */}
+          {/* Spiritual Roadmap Journey - UPDATED */}
           <div className="mb-6 lg:mb-8">
-            <SpiritualProgressSteps />
+            <SpiritualRoadmapJourney />
           </div>
           
           {/* Quick Actions - Mobile Responsive */}
