@@ -181,8 +181,8 @@ const SpiritualRoadmapJourney: React.FC<SpiritualRoadmapJourneyProps> = ({ class
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* Progress Steps */}
-      <ModernCard className="p-6 bg-white/90 dark:bg-gray-800/90">
+      {/* Progress Steps - No background card */}
+      <div className="p-6">
         <div className="relative">
           {/* Step Names and Ranges */}
           <div className="flex justify-between mb-4">
@@ -237,7 +237,7 @@ const SpiritualRoadmapJourney: React.FC<SpiritualRoadmapJourneyProps> = ({ class
             ))}
           </div>
 
-          {/* Small Progress Card Below Current Level - Positioned to touch the icon */}
+          {/* Small Progress Card Below Current Level - No background */}
           <div className="flex justify-between">
             {spiritualLevels.map((level, index) => (
               <div key={level.id} className="flex flex-col items-center" style={{ width: `${100 / spiritualLevels.length}%` }}>
@@ -269,7 +269,7 @@ const SpiritualRoadmapJourney: React.FC<SpiritualRoadmapJourneyProps> = ({ class
             ))}
           </div>
         </div>
-      </ModernCard>
+      </div>
 
       {/* Activity Calendar Description */}
       <div className="text-center py-4">
