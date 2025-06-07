@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Flag, Trophy } from 'lucide-react';
 import ModernCard from './ModernCard';
 import { getTodayCount } from '@/utils/indexedDBUtils';
+import { getSpiritualLevel } from './SpiritualJourneyLevels';
 
 interface SpiritualLevel {
   id: number;
@@ -178,6 +179,9 @@ const SpiritualRoadmapJourney: React.FC<SpiritualRoadmapJourneyProps> = ({ class
   const allStepsCompleted = currentLevel === spiritualLevels.length - 1 && 
     (spiritualLevels[currentLevel].maxJaaps === null || currentCount >= spiritualLevels[currentLevel].maxJaaps!);
 
+  // Get current level info for activity calendar display
+  const currentSpiritualLevel = getSpiritualLevel(currentCount);
+
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Progress Steps */}
@@ -236,31 +240,29 @@ const SpiritualRoadmapJourney: React.FC<SpiritualRoadmapJourneyProps> = ({ class
             ))}
           </div>
 
-          {/* Small Progress Card Below Current Level */}
+          {/* Small Progress Card Below Current Level - Removed background */}
           <div className="flex justify-between">
             {spiritualLevels.map((level, index) => (
               <div key={level.id} className="flex flex-col items-center" style={{ width: `${100 / spiritualLevels.length}%` }}>
                 {isCurrentStep(index) && (
-                  <div className="bg-white/95 dark:bg-gray-700/95 rounded-lg p-3 shadow-lg border border-orange-200 dark:border-orange-700 min-w-[140px]">
+                  <div className="rounded-lg p-2 shadow-sm border border-orange-200/30 dark:border-orange-700/30 min-w-[100px] bg-transparent">
                     <div className="text-center">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-lg">{level.icon}</span>
-                        <span className="font-semibold text-sm text-gray-900 dark:text-white">{level.title}</span>
+                      <div className="flex items-center gap-1 mb-1 justify-center">
+                        <span className="text-sm">{level.icon}</span>
+                        <span className="font-medium text-xs text-gray-900 dark:text-white">{level.title}</span>
                       </div>
-                      <div className="text-orange-600 font-bold text-lg mb-1">{currentCount}</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">jaaps completed today</div>
+                      <div className="text-orange-600 font-bold text-sm mb-1">{currentCount}</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">jaaps today</div>
                       
                       {getNextLevelInfo() && (
                         <div className="text-xs text-gray-700 dark:text-gray-300">
-                          To reach <span className="font-semibold text-orange-600">{getNextLevelInfo()!.title}</span>
-                          <br />
-                          do <span className="font-bold text-orange-600">{getNextLevelInfo()!.requiredJaaps - currentCount}</span> more jaaps
+                          <span className="font-medium text-orange-600">{getNextLevelInfo()!.requiredJaaps - currentCount}</span> more for <span className="font-medium">{getNextLevelInfo()!.title}</span>
                         </div>
                       )}
                       
                       {allStepsCompleted && (
                         <div className="text-xs text-green-600 font-semibold">
-                          🎉 Highest level reached!
+                          🎉 Highest level!
                         </div>
                       )}
                     </div>
@@ -271,6 +273,62 @@ const SpiritualRoadmapJourney: React.FC<SpiritualRoadmapJourneyProps> = ({ class
           </div>
         </div>
       </ModernCard>
+
+      {/* Activity Calendar Information */}
+      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-4">
+        <div className="flex items-center gap-3 mb-3">
+          <span className="text-xl">📅</span>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Activity Calendar</h3>
+        </div>
+        
+        <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+          Your daily practice is tracked and displayed with spiritual level icons in the calendar grid.
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50">
+            <span className="text-lg">🍯</span>
+            <div className="text-xs">
+              <div className="font-medium text-gray-900 dark:text-white">Bhogi</div>
+              <div className="text-gray-600 dark:text-gray-400">1-108 jaaps</div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50">
+            <span className="text-lg">🧘‍♂️</span>
+            <div className="text-xs">
+              <div className="font-medium text-gray-900 dark:text-white">Yogi</div>
+              <div className="text-gray-600 dark:text-gray-400">109-500 jaaps</div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50">
+            <span className="text-lg">🕉️</span>
+            <div className="text-xs">
+              <div className="font-medium text-gray-900 dark:text-white">Sadhak</div>
+              <div className="text-gray-600 dark:text-gray-400">501-1000 jaaps</div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50">
+            <span className="text-lg">🪷</span>
+            <div className="text-xs">
+              <div className="font-medium text-gray-900 dark:text-white">Jivanmukta</div>
+              <div className="text-gray-600 dark:text-gray-400">2100+ jaaps</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">{currentSpiritualLevel.icon}</span>
+            <div className="text-sm">
+              <span className="font-medium text-amber-800 dark:text-amber-200">Today's Level: {currentSpiritualLevel.name}</span>
+              <div className="text-amber-700 dark:text-amber-300">With {currentCount} jaaps, you've reached {currentSpiritualLevel.name} level today!</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Completion Message */}
       {allStepsCompleted && (
