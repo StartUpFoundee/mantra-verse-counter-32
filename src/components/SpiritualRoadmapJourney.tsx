@@ -180,7 +180,14 @@ const SpiritualRoadmapJourney: React.FC<SpiritualRoadmapJourneyProps> = ({ class
     (spiritualLevels[currentLevel].maxJaaps === null || currentCount >= spiritualLevels[currentLevel].maxJaaps!);
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`space-y-3 ${className}`}>
+      {/* Text above roadmap - minimal space */}
+      <div className="text-center">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          To see the achievement go to activity calendar
+        </p>
+      </div>
+
       {/* Progress Steps - No background card */}
       <div className="p-6">
         <div className="relative">
@@ -213,18 +220,14 @@ const SpiritualRoadmapJourney: React.FC<SpiritualRoadmapJourneyProps> = ({ class
             {/* Step Circles */}
             {spiritualLevels.map((level, index) => (
               <div key={level.id} className="relative z-10 flex flex-col items-center">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
                   isStepCompleted(index) 
                     ? 'bg-gradient-to-r from-orange-400 to-red-500 text-white' 
                     : isCurrentStep(index) 
                       ? 'bg-gradient-to-r from-orange-400 to-red-500 text-white' 
                       : 'bg-gray-200 dark:bg-gray-600 text-gray-500'
                 }`}>
-                  {isStepCompleted(index) ? (
-                    <span className="text-lg">✓</span>
-                  ) : (
-                    <span className="text-lg">{level.icon}</span>
-                  )}
+                  <span className="text-lg filter drop-shadow-sm">{level.icon}</span>
                 </div>
 
                 {/* Current Step Flag */}
@@ -237,23 +240,23 @@ const SpiritualRoadmapJourney: React.FC<SpiritualRoadmapJourneyProps> = ({ class
             ))}
           </div>
 
-          {/* Small Progress Card Below Current Level - No background */}
+          {/* Small White Card Below Current Level - Positioned to touch the icon */}
           <div className="flex justify-between">
             {spiritualLevels.map((level, index) => (
               <div key={level.id} className="flex flex-col items-center" style={{ width: `${100 / spiritualLevels.length}%` }}>
                 {isCurrentStep(index) && (
-                  <div className="mt-1 p-2 min-w-[100px]">
+                  <div className="mt-1 p-3 min-w-[120px] bg-white/95 dark:bg-gray-800/95 rounded-xl shadow-lg backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50">
                     <div className="text-center">
                       <div className="flex items-center gap-1 mb-1 justify-center">
-                        <span className="text-sm">{level.icon}</span>
-                        <span className="font-medium text-xs text-gray-900 dark:text-white">{level.title}</span>
+                        <span className="text-lg">{level.icon}</span>
+                        <span className="font-semibold text-sm text-gray-900 dark:text-white">{level.title}</span>
                       </div>
-                      <div className="text-orange-600 font-bold text-sm mb-1">{currentCount}</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">jaaps today</div>
+                      <div className="text-orange-600 font-bold text-lg mb-1">{currentCount}</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">jaaps today</div>
                       
                       {getNextLevelInfo() && (
                         <div className="text-xs text-gray-700 dark:text-gray-300">
-                          <span className="font-medium text-orange-600">{getNextLevelInfo()!.requiredJaaps - currentCount}</span> more for <span className="font-medium">{getNextLevelInfo()!.title}</span>
+                          <span className="font-semibold text-orange-600">{getNextLevelInfo()!.requiredJaaps - currentCount}</span> more for <span className="font-medium">{getNextLevelInfo()!.title}</span>
                         </div>
                       )}
                       
@@ -269,16 +272,6 @@ const SpiritualRoadmapJourney: React.FC<SpiritualRoadmapJourneyProps> = ({ class
             ))}
           </div>
         </div>
-      </div>
-
-      {/* Activity Calendar Description */}
-      <div className="text-center py-4">
-        <p className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-2">
-          📅 Activity Calendar
-        </p>
-        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-          Your daily practice is tracked and displayed with spiritual level icons in the calendar grid.
-        </p>
       </div>
 
       {/* Completion Message */}
