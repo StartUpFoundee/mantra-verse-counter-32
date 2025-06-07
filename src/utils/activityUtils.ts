@@ -94,7 +94,7 @@ export const getActivityData = async (): Promise<{[date: string]: number}> => {
 };
 
 /**
- * Calculate streak data
+ * Calculate streak data with improved logic
  */
 export const getStreakData = async (): Promise<StreakData> => {
   try {
@@ -111,15 +111,12 @@ export const getStreakData = async (): Promise<StreakData> => {
     // Calculate current streak (working backwards from today)
     const today = getTodayDateString();
     let currentStreak = 0;
-    let checkDate = new Date();
     
-    // Check if today has activity first
-    if (activityData[today] && activityData[today] > 0) {
-      currentStreak = 1;
-      checkDate.setDate(checkDate.getDate() - 1);
-    }
+    // Start from today and work backwards
+    const todayDate = new Date();
+    let checkDate = new Date(todayDate);
     
-    // Count consecutive days backwards
+    // Check consecutive days backwards from today
     while (true) {
       const year = checkDate.getFullYear();
       const month = String(checkDate.getMonth() + 1).padStart(2, '0');
@@ -140,7 +137,7 @@ export const getStreakData = async (): Promise<StreakData> => {
     let previousDate: Date | null = null;
     
     activeDates.forEach(dateStr => {
-      const currentDate = new Date(dateStr + 'T00:00:00'); // Add time to avoid timezone issues
+      const currentDate = new Date(dateStr + 'T00:00:00');
       
       if (previousDate) {
         const dayDiff = Math.floor((currentDate.getTime() - previousDate.getTime()) / (1000 * 60 * 60 * 24));

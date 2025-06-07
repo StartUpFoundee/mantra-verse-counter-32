@@ -275,7 +275,7 @@ const ActiveDaysPage: React.FC = () => {
                   ))}
                 </div>
 
-                {/* Days grid */}
+                {/* Days grid - Only show icons, no date numbers */}
                 <div className="grid grid-cols-7 gap-1">
                   {Array.from({ length: Math.ceil(monthData.days.length / 7) }).map((_, weekIndex) => (
                     monthData.days.slice(weekIndex * 7, (weekIndex + 1) * 7).map((dayData, dayIndex) => {
@@ -300,19 +300,9 @@ const ActiveDaysPage: React.FC = () => {
                           onMouseMove={handleMouseMove}
                           onMouseLeave={() => setHoveredDay(null)}
                         >
-                          {!dayData.isFuture && dayData.count > 0 && spiritualLevel.icon ? (
-                            <span className="filter drop-shadow-sm text-xs absolute">
+                          {!dayData.isFuture && dayData.count > 0 && spiritualLevel.icon && (
+                            <span className="filter drop-shadow-sm text-xs">
                               {spiritualLevel.icon}
-                            </span>
-                          ) : (
-                            !dayData.isFuture && dayData.count > 0 && (
-                              <div className="w-2 h-2 bg-emerald-500 rounded-full absolute"></div>
-                            )
-                          )}
-                          {/* Only show date numbers for days with activity, today, or future dates */}
-                          {(dayData.count > 0 || dayData.isToday || dayData.isFuture) && (
-                            <span className={`text-xs font-medium ${dayData.isToday ? 'text-amber-700 dark:text-amber-300' : dayData.isFuture ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-300'} ${dayData.count > 0 && !dayData.isFuture ? 'mt-3' : ''}`}>
-                              {dayData.day}
                             </span>
                           )}
                         </div>
