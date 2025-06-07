@@ -87,6 +87,7 @@ const ActiveDaysPage: React.FC = () => {
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
     const currentMonth = currentDate.getMonth();
+    const today = new Date();
     
     // If selected year is current year, only show months up to current month
     // If selected year is past year, show all 12 months
@@ -115,14 +116,17 @@ const ActiveDaysPage: React.FC = () => {
         const count = activityData[dateStr] || 0;
         
         // Check if today using local dates
-        const today = new Date();
         const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
         const isToday = dateStr === todayStr;
+        
+        // Check if date is in the future
+        const isFuture = date > today;
         
         days.push({
           date: dateStr,
           count,
           isToday,
+          isFuture,
           day
         });
       }
@@ -144,7 +148,8 @@ const ActiveDaysPage: React.FC = () => {
     setMousePosition({ x: e.clientX, y: e.clientY });
   };
 
-  const getActivityLevel = (count: number): string => {
+  const getActivityLevel = (count: number, isFuture: boolean): string => {
+    if (isFuture) return "bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"; // Future dates are neutral
     if (count === 0) return "bg-gray-200/50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600";
     const level = getSpiritualLevel(count);
     return "bg-emerald-200/70 dark:bg-emerald-800/50 border border-emerald-300 dark:border-emerald-600";
@@ -167,11 +172,10 @@ const ActiveDaysPage: React.FC = () => {
         </h1>
         <Button
           onClick={() => navigate('/time-tracking')}
-          variant="outline"
-          className="text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-600 hover:bg-amber-100/50 dark:hover:bg-amber-900/20"
+          className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-blue-400/30"
         >
           <Clock className="w-4 h-4 mr-2" />
-          Time Spent
+          Track Your Time
         </Button>
       </div>
 
@@ -232,12 +236,10 @@ const ActiveDaysPage: React.FC = () => {
               <div className="flex items-center gap-3">
                 <Button
                   onClick={() => navigate('/time-tracking')}
-                  variant="outline"
-                  size="sm"
-                  className="text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-600 hover:bg-amber-100/50 dark:hover:bg-amber-900/20"
+                  className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-purple-400/30"
                 >
                   <Clock className="w-4 h-4 mr-1" />
-                  Track Time
+                  Track Your Time
                 </Button>
                 {yearOptions.length > 1 && (
                   <select 
@@ -287,27 +289,29 @@ const ActiveDaysPage: React.FC = () => {
                         <div
                           key={dayData.date}
                           className={`w-8 h-8 rounded-sm cursor-pointer transition-all duration-200 hover:ring-2 hover:ring-amber-400 relative flex items-center justify-center text-xs ${
-                            getActivityLevel(dayData.count)
+                            getActivityLevel(dayData.count, dayData.isFuture)
                           } ${dayData.isToday ? 'ring-2 ring-amber-500 bg-amber-100 dark:bg-amber-900' : ''}`}
                           onMouseEnter={(e) => {
-                            setHoveredDay({ date: dayData.date, count: dayData.count });
-                            handleMouseMove(e);
+                            if (!dayData.isFuture) {
+                              setHoveredDay({ date: dayData.date, count: dayData.count });
+                              handleMouseMove(e);
+                            }
                           }}
                           onMouseMove={handleMouseMove}
                           onMouseLeave={() => setHoveredDay(null)}
                         >
-                          {dayData.count > 0 && spiritualLevel.icon ? (
+                          {!dayData.isFuture && dayData.count > 0 && spiritualLevel.icon ? (
                             <span className="filter drop-shadow-sm text-xs absolute">
                               {spiritualLevel.icon}
                             </span>
                           ) : (
-                            dayData.count > 0 && (
+                            !dayData.isFuture && dayData.count > 0 && (
                               <div className="w-2 h-2 bg-emerald-500 rounded-full absolute"></div>
                             )
                           )}
-                          {/* Only show date numbers for days with activity or today */}
-                          {(dayData.count > 0 || dayData.isToday) && (
-                            <span className={`text-xs font-medium ${dayData.isToday ? 'text-amber-700 dark:text-amber-300' : 'text-gray-700 dark:text-gray-300'} ${dayData.count > 0 ? 'mt-3' : ''}`}>
+                          {/* Only show date numbers for days with activity, today, or future dates */}
+                          {(dayData.count > 0 || dayData.isToday || dayData.isFuture) && (
+                            <span className={`text-xs font-medium ${dayData.isToday ? 'text-amber-700 dark:text-amber-300' : dayData.isFuture ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-300'} ${dayData.count > 0 && !dayData.isFuture ? 'mt-3' : ''}`}>
                               {dayData.day}
                             </span>
                           )}

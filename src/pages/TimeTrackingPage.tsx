@@ -69,6 +69,7 @@ const TimeTrackingPage: React.FC = () => {
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
     const currentMonth = currentDate.getMonth();
+    const today = new Date();
     
     const maxMonth = (year === currentYear) ? currentMonth : 11;
     const months = [];
@@ -92,14 +93,15 @@ const TimeTrackingPage: React.FC = () => {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const timeSpent = timeData[dateStr] || 0;
         
-        const today = new Date();
         const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
         const isToday = dateStr === todayStr;
+        const isFuture = date > today;
         
         days.push({
           date: dateStr,
           timeSpent,
           isToday,
+          isFuture,
           day
         });
       }
@@ -121,7 +123,10 @@ const TimeTrackingPage: React.FC = () => {
     setMousePosition({ x: e.clientX, y: e.clientY });
   };
 
-  const getActivityLevel = (timeSpent: number): string => {
+  const getActivityLevel = (timeSpent: number, isFuture: boolean): string => {
+    if (isFuture) {
+      return "bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"; // Future dates are neutral
+    }
     if (timeSpent === 0) {
       return "bg-red-200/50 dark:bg-red-800/50 border border-red-300 dark:border-red-600";
     }
@@ -210,7 +215,7 @@ const TimeTrackingPage: React.FC = () => {
               )}
             </div>
             <p className="text-gray-600 dark:text-gray-400">
-              Green indicates active days, red indicates no activity
+              Green indicates active days, red indicates no activity (past dates only)
             </p>
           </div>
 
@@ -242,16 +247,18 @@ const TimeTrackingPage: React.FC = () => {
                         <div
                           key={dayData.date}
                           className={`w-8 h-8 rounded-sm cursor-pointer transition-all duration-200 hover:ring-2 hover:ring-amber-400 relative flex items-center justify-center text-xs ${
-                            getActivityLevel(dayData.timeSpent)
+                            getActivityLevel(dayData.timeSpent, dayData.isFuture)
                           } ${dayData.isToday ? 'ring-2 ring-amber-500 bg-amber-100 dark:bg-amber-900' : ''}`}
                           onMouseEnter={(e) => {
-                            setHoveredDay({ date: dayData.date, timeSpent: dayData.timeSpent });
-                            handleMouseMove(e);
+                            if (!dayData.isFuture) {
+                              setHoveredDay({ date: dayData.date, timeSpent: dayData.timeSpent });
+                              handleMouseMove(e);
+                            }
                           }}
                           onMouseMove={handleMouseMove}
                           onMouseLeave={() => setHoveredDay(null)}
                         >
-                          <span className={`text-xs font-medium ${dayData.isToday ? 'text-amber-700 dark:text-amber-300' : 'text-gray-700 dark:text-gray-300'}`}>
+                          <span className={`text-xs font-medium ${dayData.isToday ? 'text-amber-700 dark:text-amber-300' : dayData.isFuture ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-300'}`}>
                             {dayData.day}
                           </span>
                         </div>

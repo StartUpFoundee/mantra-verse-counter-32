@@ -1,5 +1,5 @@
 
-import { getData, storeData, getAllData, STORES } from './indexedDBUtils';
+import { getData, storeData, getAllData, STORES, initializeDatabase } from './indexedDBUtils';
 import { getTodayCount, getLifetimeCount } from './indexedDBUtils';
 
 export interface DailyActivity {
@@ -33,6 +33,9 @@ export const recordDailyActivity = async (count: number = 1): Promise<void> => {
   const today = getTodayDateString();
   
   try {
+    // Ensure database is initialized
+    await initializeDatabase();
+    
     // Get existing activity for today
     const existingActivity = await getData(STORES.activityData, today);
     const currentCount = existingActivity ? existingActivity.count : 0;
@@ -44,7 +47,6 @@ export const recordDailyActivity = async (count: number = 1): Promise<void> => {
       timestamp: Date.now()
     };
     
-    // Fix: Don't pass the key parameter since the store uses in-line keys
     await storeData(STORES.activityData, activityData);
     console.log(`Recorded ${count} jaaps for ${today}. Total today: ${activityData.count}`);
   } catch (error) {
@@ -57,6 +59,9 @@ export const recordDailyActivity = async (count: number = 1): Promise<void> => {
  */
 export const getActivityData = async (): Promise<{[date: string]: number}> => {
   try {
+    // Ensure database is initialized
+    await initializeDatabase();
+    
     // Get activity from IndexedDB
     const allActivity = await getAllData(STORES.activityData);
     const activityMap: {[date: string]: number} = {};
@@ -77,7 +82,6 @@ export const getActivityData = async (): Promise<{[date: string]: number}> => {
         count: todayCount,
         timestamp: Date.now()
       };
-      // Fix: Don't pass the key parameter
       await storeData(STORES.activityData, activityData);
     }
     

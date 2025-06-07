@@ -1,5 +1,5 @@
 
-import { getData, storeData, getAllData, STORES } from './indexedDBUtils';
+import { getData, storeData, getAllData, STORES, initializeDatabase } from './indexedDBUtils';
 
 export interface DailyTimeSpent {
   date: string;
@@ -29,6 +29,9 @@ export const recordTimeSpent = async (seconds: number = 1): Promise<void> => {
   const today = getTodayDateString();
   
   try {
+    // Ensure database is initialized
+    await initializeDatabase();
+    
     // Get existing time data for today
     const existingTime = await getData('timeTracking', today);
     const currentTime = existingTime ? existingTime.timeSpent : 0;
@@ -52,19 +55,15 @@ export const recordTimeSpent = async (seconds: number = 1): Promise<void> => {
  */
 export const getTimeTrackingData = async (): Promise<TimeTrackingData> => {
   try {
+    // Ensure database is initialized
+    await initializeDatabase();
+    
     const allTimeData = await getAllData('timeTracking');
     const timeMap: TimeTrackingData = {};
     
     allTimeData.forEach((timeEntry: DailyTimeSpent) => {
       timeMap[timeEntry.date] = timeEntry.timeSpent;
     });
-    
-    // Always record today's session
-    const today = getTodayDateString();
-    if (!timeMap[today]) {
-      await recordTimeSpent(1); // Record at least 1 second for today
-      timeMap[today] = 1;
-    }
     
     return timeMap;
   } catch (error) {
@@ -93,24 +92,22 @@ export const formatTimeSpent = (seconds: number): string => {
 // Initialize time tracking when user visits
 let sessionStartTime = Date.now();
 let lastActivityTime = Date.now();
+let trackingInterval: NodeJS.Timeout | null = null;
 
 /**
- * Start time tracking session
+ * Check if current page should track time (only manual and audio counter pages)
+ */
+const shouldTrackTime = (): boolean => {
+  const path = window.location.pathname;
+  return path === '/manual' || path === '/audio';
+};
+
+/**
+ * Start time tracking session - only on manual and audio pages
  */
 export const startTimeTracking = (): void => {
   sessionStartTime = Date.now();
   lastActivityTime = Date.now();
-  
-  // Record time every 10 seconds while user is active
-  const trackingInterval = setInterval(() => {
-    const now = Date.now();
-    const timeSinceLastActivity = now - lastActivityTime;
-    
-    // If user has been inactive for more than 30 seconds, don't count time
-    if (timeSinceLastActivity < 30000) {
-      recordTimeSpent(10);
-    }
-  }, 10000);
   
   // Track user activity
   const updateActivity = () => {
@@ -123,13 +120,67 @@ export const startTimeTracking = (): void => {
   document.addEventListener('scroll', updateActivity);
   document.addEventListener('touchstart', updateActivity);
   
+  // Start tracking interval
+  const startTracking = () => {
+    if (trackingInterval) {
+      clearInterval(trackingInterval);
+    }
+    
+    trackingInterval = setInterval(() => {
+      const now = Date.now();
+      const timeSinceLastActivity = now - lastActivityTime;
+      
+      // Only track time if on correct page and user has been active
+      if (shouldTrackTime() && timeSinceLastActivity < 30000) {
+        recordTimeSpent(10);
+      }
+    }, 10000);
+  };
+  
+  // Listen for route changes
+  const handleRouteChange = () => {
+    if (shouldTrackTime()) {
+      startTracking();
+    } else if (trackingInterval) {
+      clearInterval(trackingInterval);
+      trackingInterval = null;
+    }
+  };
+  
+  // Initial check
+  handleRouteChange();
+  
+  // Listen for navigation changes
+  window.addEventListener('popstate', handleRouteChange);
+  
+  // Override pushState and replaceState to detect programmatic navigation
+  const originalPushState = history.pushState;
+  const originalReplaceState = history.replaceState;
+  
+  history.pushState = function(...args) {
+    originalPushState.apply(this, args);
+    setTimeout(handleRouteChange, 0);
+  };
+  
+  history.replaceState = function(...args) {
+    originalReplaceState.apply(this, args);
+    setTimeout(handleRouteChange, 0);
+  };
+  
   // Clean up on page unload
   window.addEventListener('beforeunload', () => {
-    clearInterval(trackingInterval);
+    if (trackingInterval) {
+      clearInterval(trackingInterval);
+    }
     document.removeEventListener('mousedown', updateActivity);
     document.removeEventListener('keydown', updateActivity);
     document.removeEventListener('scroll', updateActivity);
     document.removeEventListener('touchstart', updateActivity);
+    window.removeEventListener('popstate', handleRouteChange);
+    
+    // Restore original methods
+    history.pushState = originalPushState;
+    history.replaceState = originalReplaceState;
   });
 };
 
