@@ -235,7 +235,7 @@ const TimeTrackingPage: React.FC = () => {
                   ))}
                 </div>
 
-                {/* Days grid */}
+                {/* Days grid - No date numbers, just empty boxes */}
                 <div className="grid grid-cols-7 gap-1">
                   {Array.from({ length: Math.ceil(monthData.days.length / 7) }).map((_, weekIndex) => (
                     monthData.days.slice(weekIndex * 7, (weekIndex + 1) * 7).map((dayData, dayIndex) => {
@@ -246,7 +246,7 @@ const TimeTrackingPage: React.FC = () => {
                       return (
                         <div
                           key={dayData.date}
-                          className={`w-8 h-8 rounded-sm cursor-pointer transition-all duration-200 hover:ring-2 hover:ring-amber-400 relative flex items-center justify-center text-xs ${
+                          className={`w-8 h-8 rounded-sm cursor-pointer transition-all duration-200 hover:ring-2 hover:ring-amber-400 relative flex items-center justify-center ${
                             getActivityLevel(dayData.timeSpent, dayData.isFuture)
                           } ${dayData.isToday ? 'ring-2 ring-amber-500 bg-amber-100 dark:bg-amber-900' : ''}`}
                           onMouseEnter={(e) => {
@@ -258,9 +258,7 @@ const TimeTrackingPage: React.FC = () => {
                           onMouseMove={handleMouseMove}
                           onMouseLeave={() => setHoveredDay(null)}
                         >
-                          <span className={`text-xs font-medium ${dayData.isToday ? 'text-amber-700 dark:text-amber-300' : dayData.isFuture ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-300'}`}>
-                            {dayData.day}
-                          </span>
+                          {/* Empty boxes - no content */}
                         </div>
                       );
                     })

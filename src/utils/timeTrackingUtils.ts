@@ -89,10 +89,10 @@ export const formatTimeSpent = (seconds: number): string => {
   }
 };
 
-// Initialize time tracking when user visits
-let sessionStartTime = Date.now();
-let lastActivityTime = Date.now();
+// Global tracking variables
 let trackingInterval: NodeJS.Timeout | null = null;
+let lastActivityTime = Date.now();
+let isTrackingInitialized = false;
 
 /**
  * Check if current page should track time (only manual and audio counter pages)
@@ -103,54 +103,66 @@ const shouldTrackTime = (): boolean => {
 };
 
 /**
- * Start time tracking session - only on manual and audio pages
+ * Update activity timestamp
+ */
+const updateActivity = () => {
+  lastActivityTime = Date.now();
+};
+
+/**
+ * Start time tracking session - automatically starts on manual and audio pages
  */
 export const startTimeTracking = (): void => {
-  sessionStartTime = Date.now();
+  if (isTrackingInitialized) return; // Prevent multiple initializations
+  
+  console.log('Initializing time tracking system...');
+  isTrackingInitialized = true;
   lastActivityTime = Date.now();
   
-  // Track user activity
-  const updateActivity = () => {
-    lastActivityTime = Date.now();
+  // Listen for user interactions to track activity
+  const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'mousemove', 'click'];
+  events.forEach(eventType => {
+    document.addEventListener(eventType, updateActivity, { passive: true });
+  });
+  
+  // Function to start/stop tracking based on current page
+  const handleRouteChange = () => {
+    if (shouldTrackTime()) {
+      console.log(`Starting time tracking on ${window.location.pathname}`);
+      startActiveTracking();
+    } else {
+      console.log(`Stopping time tracking, not on counter page`);
+      stopActiveTracking();
+    }
   };
   
-  // Listen for user interactions
-  document.addEventListener('mousedown', updateActivity);
-  document.addEventListener('keydown', updateActivity);
-  document.addEventListener('scroll', updateActivity);
-  document.addEventListener('touchstart', updateActivity);
-  
-  // Start tracking interval
-  const startTracking = () => {
-    if (trackingInterval) {
-      clearInterval(trackingInterval);
-    }
+  // Start active tracking
+  const startActiveTracking = () => {
+    if (trackingInterval) return; // Already tracking
     
     trackingInterval = setInterval(() => {
       const now = Date.now();
       const timeSinceLastActivity = now - lastActivityTime;
       
-      // Only track time if on correct page and user has been active
-      if (shouldTrackTime() && timeSinceLastActivity < 30000) {
-        recordTimeSpent(10);
+      // Only record time if user has been active within last 30 seconds
+      if (timeSinceLastActivity < 30000) {
+        recordTimeSpent(10); // Record 10 seconds every 10 seconds
       }
-    }, 10000);
+    }, 10000); // Check every 10 seconds
   };
   
-  // Listen for route changes
-  const handleRouteChange = () => {
-    if (shouldTrackTime()) {
-      startTracking();
-    } else if (trackingInterval) {
+  // Stop active tracking
+  const stopActiveTracking = () => {
+    if (trackingInterval) {
       clearInterval(trackingInterval);
       trackingInterval = null;
     }
   };
   
-  // Initial check
+  // Initial route check
   handleRouteChange();
   
-  // Listen for navigation changes
+  // Listen for navigation changes (both programmatic and browser)
   window.addEventListener('popstate', handleRouteChange);
   
   // Override pushState and replaceState to detect programmatic navigation
@@ -159,30 +171,46 @@ export const startTimeTracking = (): void => {
   
   history.pushState = function(...args) {
     originalPushState.apply(this, args);
-    setTimeout(handleRouteChange, 0);
+    setTimeout(handleRouteChange, 100); // Small delay to ensure route change is processed
   };
   
   history.replaceState = function(...args) {
     originalReplaceState.apply(this, args);
-    setTimeout(handleRouteChange, 0);
+    setTimeout(handleRouteChange, 100);
   };
   
   // Clean up on page unload
-  window.addEventListener('beforeunload', () => {
-    if (trackingInterval) {
-      clearInterval(trackingInterval);
-    }
-    document.removeEventListener('mousedown', updateActivity);
-    document.removeEventListener('keydown', updateActivity);
-    document.removeEventListener('scroll', updateActivity);
-    document.removeEventListener('touchstart', updateActivity);
-    window.removeEventListener('popstate', handleRouteChange);
+  const cleanup = () => {
+    console.log('Cleaning up time tracking...');
+    stopActiveTracking();
+    isTrackingInitialized = false;
     
-    // Restore original methods
+    // Remove event listeners
+    events.forEach(eventType => {
+      document.removeEventListener(eventType, updateActivity);
+    });
+    
+    window.removeEventListener('popstate', handleRouteChange);
+    window.removeEventListener('beforeunload', cleanup);
+    
+    // Restore original history methods
     history.pushState = originalPushState;
     history.replaceState = originalReplaceState;
-  });
+  };
+  
+  window.addEventListener('beforeunload', cleanup);
 };
+
+// Auto-initialize time tracking when this module is imported
+if (typeof window !== 'undefined') {
+  // Wait for DOM to be ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startTimeTracking);
+  } else {
+    // DOM is already ready
+    setTimeout(startTimeTracking, 100);
+  }
+}
 
 export default {
   recordTimeSpent,
