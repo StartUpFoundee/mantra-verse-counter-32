@@ -5,9 +5,8 @@ import ImprovedBulletproofAccountSelector from './ImprovedBulletproofAccountSele
 import MultiStepAccountCreation from './MultiStepAccountCreation';
 import BulletproofLoginDialog from './BulletproofLoginDialog';
 import OnboardingController from './OnboardingController';
-import SpiritualProgressSteps from './SpiritualProgressSteps';
 
-export type IdentityView = 'onboarding' | 'progress' | 'selector' | 'create' | 'login';
+export type IdentityView = 'onboarding' | 'selector' | 'create' | 'login';
 
 interface IdentitySystemProps {
   onAuthSuccess: () => void;
@@ -24,10 +23,6 @@ const IdentitySystem: React.FC<IdentitySystemProps> = ({ onAuthSuccess }) => {
   }
 
   const handleOnboardingComplete = () => {
-    setCurrentView('progress');
-  };
-
-  const handleProgressComplete = () => {
     setCurrentView('selector');
   };
 
@@ -65,9 +60,6 @@ const IdentitySystem: React.FC<IdentitySystemProps> = ({ onAuthSuccess }) => {
   switch (currentView) {
     case 'onboarding':
       return <OnboardingController onComplete={handleOnboardingComplete} />;
-
-    case 'progress':
-      return <SpiritualProgressSteps onComplete={handleProgressComplete} />;
 
     case 'create':
       return (
