@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Flame, Target, TrendingUp } from "lucide-react";
+import { ArrowLeft, Calendar, Flame, Target, TrendingUp, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getActivityData, getStreakData } from "@/utils/activityUtils";
 import { getTodayCount } from "@/utils/indexedDBUtils";
@@ -165,7 +165,14 @@ const ActiveDaysPage: React.FC = () => {
         <h1 className="text-2xl lg:text-3xl xl:text-4xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent text-center">
           Active Days
         </h1>
-        <div className="w-28"></div>
+        <Button
+          onClick={() => navigate('/time-tracking')}
+          variant="outline"
+          className="text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-600 hover:bg-amber-100/50 dark:hover:bg-amber-900/20"
+        >
+          <Clock className="w-4 h-4 mr-2" />
+          Time Spent
+        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -222,17 +229,28 @@ const ActiveDaysPage: React.FC = () => {
                 <Calendar className="w-6 h-6 lg:w-7 lg:h-7 text-amber-600 dark:text-amber-400" />
                 <h2 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Activity Calendar</h2>
               </div>
-              {yearOptions.length > 1 && (
-                <select 
-                  value={selectedYear} 
-                  onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                  className="bg-white dark:bg-zinc-800 border border-amber-200/50 dark:border-amber-700/50 rounded-lg px-3 py-2 text-sm font-medium text-gray-900 dark:text-white"
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={() => navigate('/time-tracking')}
+                  variant="outline"
+                  size="sm"
+                  className="text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-600 hover:bg-amber-100/50 dark:hover:bg-amber-900/20"
                 >
-                  {yearOptions.map(year => (
-                    <option key={year} value={year}>{year}</option>
-                  ))}
-                </select>
-              )}
+                  <Clock className="w-4 h-4 mr-1" />
+                  Track Time
+                </Button>
+                {yearOptions.length > 1 && (
+                  <select 
+                    value={selectedYear} 
+                    onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                    className="bg-white dark:bg-zinc-800 border border-amber-200/50 dark:border-amber-700/50 rounded-lg px-3 py-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    {yearOptions.map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+                )}
+              </div>
             </div>
             <p className="text-gray-600 dark:text-gray-400">
               Your spiritual practice journey {yearOptions.length > 1 ? `starting from ${yearOptions[0]}` : `for ${selectedYear}`}

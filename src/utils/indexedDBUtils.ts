@@ -5,7 +5,8 @@ let db: IDBDatabase | null = null;
 
 export const STORES = {
   activityData: "activityData",
-  counts: "counts"
+  counts: "counts",
+  timeTracking: "timeTracking"
 };
 
 export const initializeDatabase = (): Promise<void> => {
@@ -15,7 +16,7 @@ export const initializeDatabase = (): Promise<void> => {
       return;
     }
 
-    const request = indexedDB.open('MantraCounterDB', 3);
+    const request = indexedDB.open('MantraCounterDB', 4);
 
     request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
       const db = (event.target as IDBRequest).result as IDBDatabase;
@@ -37,11 +38,18 @@ export const initializeDatabase = (): Promise<void> => {
           db.createObjectStore('activityData', { keyPath: 'date' });
         }
       }
+
+      if (event.oldVersion < 4) {
+        // Version 4, add timeTracking store
+        if (!db.objectStoreNames.contains('timeTracking')) {
+          db.createObjectStore('timeTracking', { keyPath: 'date' });
+        }
+      }
     };
 
     request.onsuccess = (event: Event) => {
       db = (event.target as IDBRequest).result as IDBDatabase;
-      console.log('Database initialized with version 3');
+      console.log('Database initialized with version 4');
       resolve();
     };
 
@@ -216,10 +224,9 @@ export const storeData = async (storeName: string, data: any, key?: string): Pro
     const transaction = db.transaction([storeName], 'readwrite');
     const store = transaction.objectStore(storeName);
     
-    // For activityData store, use put without key since it has in-line keys (date field)
-    // For other stores, use the key parameter if provided
+    // For stores with in-line keys, use put without key parameter
     let request;
-    if (storeName === STORES.activityData) {
+    if (storeName === STORES.activityData || storeName === STORES.timeTracking) {
       request = store.put(data);
     } else {
       request = key ? store.put(data, key) : store.add(data);

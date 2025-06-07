@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -13,6 +12,7 @@ import IdentityGuidePage from "./pages/IdentityGuidePage";
 import ActiveDaysPage from "./pages/ActiveDaysPage";
 import NotFound from "./pages/NotFound";
 import IdentitySystem from "./components/IdentitySystem";
+import TimeTrackingPage from "./pages/TimeTrackingPage";
 import { initializeDatabase } from "./utils/indexedDBUtils";
 import { useBulletproofAuth } from "./hooks/useBulletproofAuth";
 import { Loader } from "lucide-react";
@@ -107,6 +107,7 @@ const AuthenticatedApp: React.FC = () => {
       <Route path="/spiritual-id" element={<SpiritualIdPage />} />
       <Route path="/identity-guide" element={<IdentityGuidePage />} />
       <Route path="/active-days" element={<ActiveDaysPage />} />
+      <Route path="/time-tracking" element={<TimeTrackingPage />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
@@ -135,6 +136,10 @@ const AppContent: React.FC = () => {
           if (!dbExists) {
             await initializeDatabase();
           }
+          
+          // Start time tracking
+          startTimeTracking();
+          
           setDbInitialized(true);
         } catch (error) {
           console.error("Database initialization failed:", error);
