@@ -165,6 +165,16 @@ const SpiritualRoadmapJourney: React.FC<SpiritualRoadmapJourneyProps> = ({ class
     return stepIndex === currentLevel;
   };
 
+  const getLevelRange = (level: SpiritualLevel) => {
+    if (level.maxJaaps === null) {
+      return `${level.requiredJaaps}+`;
+    }
+    if (level.requiredJaaps === 0 && level.maxJaaps === 0) {
+      return "0";
+    }
+    return `${level.requiredJaaps}-${level.maxJaaps}`;
+  };
+
   const allStepsCompleted = currentLevel === spiritualLevels.length - 1 && 
     (spiritualLevels[currentLevel].maxJaaps === null || currentCount >= spiritualLevels[currentLevel].maxJaaps!);
 
@@ -173,7 +183,7 @@ const SpiritualRoadmapJourney: React.FC<SpiritualRoadmapJourneyProps> = ({ class
       {/* Progress Steps */}
       <ModernCard className="p-6 bg-white/90 dark:bg-gray-800/90">
         <div className="relative">
-          {/* Step Names */}
+          {/* Step Names and Ranges */}
           <div className="flex justify-between mb-4">
             {spiritualLevels.map((level, index) => (
               <div key={level.id} className="flex flex-col items-center" style={{ width: `${100 / spiritualLevels.length}%` }}>
@@ -182,12 +192,15 @@ const SpiritualRoadmapJourney: React.FC<SpiritualRoadmapJourneyProps> = ({ class
                 }`}>
                   {level.title}
                 </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  {getLevelRange(level)}
+                </div>
               </div>
             ))}
           </div>
 
           {/* Progress Line and Circles */}
-          <div className="relative flex items-center justify-between">
+          <div className="relative flex items-center justify-between mb-6">
             {/* Continuous Progress Line */}
             <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 transform -translate-y-1/2 z-0">
               <div 
@@ -222,49 +235,42 @@ const SpiritualRoadmapJourney: React.FC<SpiritualRoadmapJourneyProps> = ({ class
               </div>
             ))}
           </div>
+
+          {/* Small Progress Card Below Current Level */}
+          <div className="flex justify-between">
+            {spiritualLevels.map((level, index) => (
+              <div key={level.id} className="flex flex-col items-center" style={{ width: `${100 / spiritualLevels.length}%` }}>
+                {isCurrentStep(index) && (
+                  <div className="bg-white/95 dark:bg-gray-700/95 rounded-lg p-3 shadow-lg border border-orange-200 dark:border-orange-700 min-w-[140px]">
+                    <div className="text-center">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-lg">{level.icon}</span>
+                        <span className="font-semibold text-sm text-gray-900 dark:text-white">{level.title}</span>
+                      </div>
+                      <div className="text-orange-600 font-bold text-lg mb-1">{currentCount}</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">jaaps completed today</div>
+                      
+                      {getNextLevelInfo() && (
+                        <div className="text-xs text-gray-700 dark:text-gray-300">
+                          To reach <span className="font-semibold text-orange-600">{getNextLevelInfo()!.title}</span>
+                          <br />
+                          do <span className="font-bold text-orange-600">{getNextLevelInfo()!.requiredJaaps - currentCount}</span> more jaaps
+                        </div>
+                      )}
+                      
+                      {allStepsCompleted && (
+                        <div className="text-xs text-green-600 font-semibold">
+                          🎉 Highest level reached!
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </ModernCard>
-
-      {/* Current Level Progress Card */}
-      {!allStepsCompleted && (
-        <ModernCard className="p-4 bg-white/90 dark:bg-gray-800/90">
-          <div className="flex items-center gap-3 mb-4">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${getCurrentLevelInfo().bgColor}`}>
-              <div className="text-xl">{getCurrentLevelInfo().icon}</div>
-            </div>
-            <div>
-              <h4 className="text-lg font-bold text-gray-900 dark:text-white">{getCurrentLevelInfo().title}</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{getCurrentLevelInfo().description}</p>
-            </div>
-          </div>
-          
-          <div className="text-center">
-            <div className="text-2xl font-bold text-orange-500 mb-1">{currentCount}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">jaaps completed today</div>
-            
-            {getNextLevelInfo() && (
-              <>
-                <div className="text-sm text-gray-700 dark:text-gray-300 mb-2">
-                  To reach <span className="font-semibold text-orange-600">{getNextLevelInfo()!.title}</span>, do <span className="font-bold text-orange-600">{getNextLevelInfo()!.requiredJaaps - currentCount}</span> naam jaapa
-                </div>
-                
-                {/* Progress Bar */}
-                <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-2">
-                  <div 
-                    className="h-full bg-gradient-to-r from-orange-400 to-red-500 transition-all duration-700"
-                    style={{ 
-                      width: `${Math.min(100, (currentCount / getNextLevelInfo()!.requiredJaaps) * 100)}%` 
-                    }}
-                  ></div>
-                </div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">
-                  {currentCount} / {getNextLevelInfo()!.requiredJaaps} jaaps
-                </div>
-              </>
-            )}
-          </div>
-        </ModernCard>
-      )}
 
       {/* Completion Message */}
       {allStepsCompleted && (
