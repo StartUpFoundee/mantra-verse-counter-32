@@ -68,16 +68,18 @@ const AuthenticatedApp: React.FC = () => {
   }, [isLoading]);
 
   useEffect(() => {
-    // Handle post-login transition with animation only on login page
-    if (isAuthenticated && currentUser && location.pathname === '/' && hasInitializedAuth) {
-      setIsTransitioning(true);
-      console.log('User authenticated, redirecting to home with transition');
-      
-      // Show loading animation for smoother transition
-      setTimeout(() => {
-        navigate('/home', { replace: true });
-        setIsTransitioning(false);
-      }, 800); // Reduced transition time
+    // Handle post-login transition with animation
+    if (isAuthenticated && currentUser && hasInitializedAuth) {
+      if (location.pathname === '/' || location.pathname === '/home') {
+        console.log('User authenticated, starting transition to home');
+        setIsTransitioning(true);
+        
+        // Shorter transition time to reduce loading appearance
+        setTimeout(() => {
+          navigate('/home', { replace: true });
+          setIsTransitioning(false);
+        }, 500);
+      }
     }
   }, [isAuthenticated, currentUser, navigate, location.pathname, hasInitializedAuth]);
 
@@ -86,16 +88,16 @@ const AuthenticatedApp: React.FC = () => {
     return <LoadingScreen message="Checking authentication..." />;
   }
 
-  // Show transition loading after login
+  // Show transition loading after login/creation
   if (isTransitioning) {
-    return <LoadingScreen message="Welcome back! Loading your spiritual journey..." />;
+    return <LoadingScreen message="Welcome! Loading your spiritual journey..." />;
   }
 
   // Show identity system if not authenticated
   if (!isAuthenticated && hasInitializedAuth) {
     return <IdentitySystem onAuthSuccess={() => {
-      console.log('Auth success, starting transition');
-      setIsTransitioning(true);
+      console.log('Auth success callback triggered');
+      // Don't set transitioning here, let the useEffect handle it
     }} />;
   }
 

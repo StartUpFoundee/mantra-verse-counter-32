@@ -28,18 +28,25 @@ const IdentitySystem: React.FC<IdentitySystemProps> = ({ onAuthSuccess }) => {
   const handleAccountCreated = (accountCreated: boolean) => {
     if (accountCreated) {
       // Account was created and user is automatically logged in
+      console.log('Account created successfully, calling onAuthSuccess');
       onAuthSuccess();
     }
   };
 
   const handleLoginSuccess = () => {
     // User successfully logged in, trigger auth success to redirect to home
+    console.log('Login successful, calling onAuthSuccess');
     onAuthSuccess();
   };
 
   const handleCancel = () => {
     setCurrentView('mobile-creation');
     setSelectedSlot(null);
+  };
+
+  const handleSelectAccount = (slot: number) => {
+    setSelectedSlot(slot);
+    setCurrentView('login');
   };
 
   switch (currentView) {
@@ -59,6 +66,7 @@ const IdentitySystem: React.FC<IdentitySystemProps> = ({ onAuthSuccess }) => {
       return (
         <MobileAccountCreation
           onComplete={handleAccountCreated}
+          onSelectAccount={handleSelectAccount}
         />
       );
   }
