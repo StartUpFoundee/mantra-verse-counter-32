@@ -1,3 +1,4 @@
+
 import React from 'react';
 import ModernCard from './ModernCard';
 
@@ -92,34 +93,35 @@ const SpiritualJourneyLevels: React.FC<SpiritualJourneyLevelsProps> = ({ activit
   });
 
   return (
-    <div className="mb-8 lg:mb-12 max-w-6xl mx-auto">
-      <ModernCard className="p-6 lg:p-8 bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl border-amber-200/50 dark:border-amber-700/50" gradient>
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-2xl">🏆</span>
-            <h2 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Achievement Categories</h2>
+    <div className="mb-4 md:mb-8 lg:mb-12 max-w-6xl mx-auto">
+      <ModernCard className="p-3 md:p-6 lg:p-8 bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl border-amber-200/50 dark:border-amber-700/50" gradient>
+        <div className="mb-4 md:mb-6">
+          <div className="flex items-center gap-2 md:gap-3 mb-2">
+            <span className="text-xl md:text-2xl">🏆</span>
+            <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">Achievement Categories</h2>
           </div>
-          <p className="text-gray-600 dark:text-gray-400">Your progress across different levels of spiritual practice</p>
+          <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">Your progress across different levels of spiritual practice</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
+        {/* Mobile: 3-3-2 layout, Desktop: 6 columns */}
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4">
           {levelDays.map((level, index) => (
             <div
               key={index}
-              className={`rounded-xl p-4 text-center transition-all duration-200 hover:scale-105 border-2 ${level.color}`}
+              className={`rounded-lg md:rounded-xl p-2 md:p-4 text-center transition-all duration-200 hover:scale-105 border-2 ${level.color}`}
             >
               <div className="flex flex-col items-center h-full justify-between">
-                <div className="text-3xl mb-2 filter drop-shadow-sm min-h-[3rem] flex items-center justify-center">
+                <div className="text-lg md:text-3xl mb-1 md:mb-2 filter drop-shadow-sm min-h-[2rem] md:min-h-[3rem] flex items-center justify-center">
                   {level.icon && (
                     <span>{level.icon}</span>
                   )}
                 </div>
                 <div className="flex-1 flex flex-col justify-center">
-                  <div className="font-semibold text-sm mb-1">{level.name}</div>
-                  <div className="text-xs opacity-75 mb-2">{level.range}</div>
+                  <div className="font-semibold text-xs md:text-sm mb-1">{level.name}</div>
+                  <div className="text-xs opacity-75 mb-1 md:mb-2">{level.range}</div>
                 </div>
                 <div className="mt-auto">
-                  <div className="font-bold text-lg">{level.days}</div>
+                  <div className="font-bold text-sm md:text-lg">{level.days}</div>
                   <div className="text-xs opacity-75">days</div>
                 </div>
               </div>
