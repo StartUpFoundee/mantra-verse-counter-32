@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -14,8 +15,8 @@ import {
   Target,
   Flame
 } from "lucide-react";
-import { getStoredUserData } from "@/utils/spiritualIdUtils";
-import { getMantrasCount, getDailyGoal, getStreakCount } from "@/utils/indexedDBUtils";
+import { getUserData } from "@/utils/spiritualIdUtils";
+import { getTodayCount, getLifetimeCount } from "@/utils/indexedDBUtils";
 import ModernCard from "@/components/ModernCard";
 import DigitalClock from "@/components/DigitalClock";
 
@@ -30,22 +31,24 @@ const HomePage: React.FC = () => {
 
   useEffect(() => {
     // Load user data
-    const userData = getStoredUserData();
+    const userData = getUserData();
     setUserInfo(userData);
 
     // Load stats
     const loadStats = async () => {
       try {
-        const [mantras, goal, streak] = await Promise.all([
-          getMantrasCount(),
-          getDailyGoal(),
-          getStreakCount()
+        const [todayCount, lifetimeCount] = await Promise.all([
+          getTodayCount(),
+          getLifetimeCount()
         ]);
         
+        // Calculate streak (simplified - could be enhanced)
+        const streak = lifetimeCount > 0 ? Math.floor(lifetimeCount / 108) : 0;
+        
         setStats({
-          mantrasCount: mantras || 0,
-          dailyGoal: goal || 108,
-          streakCount: streak || 0
+          mantrasCount: todayCount || 0,
+          dailyGoal: 108,
+          streakCount: streak
         });
       } catch (error) {
         console.error("Failed to load stats:", error);
