@@ -20,10 +20,10 @@ const spiritualLevels: SpiritualLevel[] = [
   {
     id: 1,
     title: "Rogi",
-    description: "Start your journey",
+    description: "Starting point of the journey",
     requiredJaaps: 0,
     maxJaaps: 0,
-    icon: "🏃‍♂️",
+    icon: "🤒",
     color: "text-gray-600",
     bgColor: "bg-gray-100"
   },
@@ -32,7 +32,7 @@ const spiritualLevels: SpiritualLevel[] = [
     title: "Bhogi",
     description: "Experience divine bliss",
     requiredJaaps: 1,
-    maxJaaps: 108,
+    maxJaaps: 308,
     icon: "🍯",
     color: "text-amber-600",
     bgColor: "bg-amber-100"
@@ -41,8 +41,8 @@ const spiritualLevels: SpiritualLevel[] = [
     id: 3,
     title: "Yogi",
     description: "Unite with the divine",
-    requiredJaaps: 109,
-    maxJaaps: 500,
+    requiredJaaps: 309,
+    maxJaaps: 508,
     icon: "🧘‍♂️",
     color: "text-blue-600",
     bgColor: "bg-blue-100"
@@ -51,8 +51,8 @@ const spiritualLevels: SpiritualLevel[] = [
     id: 4,
     title: "Sadhak",
     description: "Devoted practitioner",
-    requiredJaaps: 501,
-    maxJaaps: 1000,
+    requiredJaaps: 509,
+    maxJaaps: 708,
     icon: "🕉️",
     color: "text-teal-600",
     bgColor: "bg-teal-100"
@@ -61,29 +61,19 @@ const spiritualLevels: SpiritualLevel[] = [
     id: 5,
     title: "Tapasvi",
     description: "Master of austerity",
-    requiredJaaps: 1001,
-    maxJaaps: 1500,
+    requiredJaaps: 709,
+    maxJaaps: 1007,
     icon: "🔥",
     color: "text-orange-600",
     bgColor: "bg-orange-100"
   },
   {
     id: 6,
-    title: "Rishi",
-    description: "Sage of wisdom",
-    requiredJaaps: 1501,
-    maxJaaps: 2100,
-    icon: "🔱",
-    color: "text-purple-600",
-    bgColor: "bg-purple-100"
-  },
-  {
-    id: 7,
-    title: "Jivanmukta",
-    description: "Liberated soul",
-    requiredJaaps: 2101,
+    title: "Bhakti",
+    description: "Pure devotion and love",
+    requiredJaaps: 1008,
     maxJaaps: null,
-    icon: "🪷",
+    icon: "🙏",
     color: "text-pink-600",
     bgColor: "bg-pink-100"
   }
@@ -187,7 +177,7 @@ const SpiritualRoadmapJourney: React.FC<SpiritualRoadmapJourneyProps> = ({ class
         {/* Text above roadmap */}
         <div className="text-center">
           <p className="text-xs text-gray-600 dark:text-gray-400">
-            To see the achievement go to activity calendar
+            Daily target of 2100 jaapa must complete
           </p>
         </div>
 
@@ -285,7 +275,7 @@ const SpiritualRoadmapJourney: React.FC<SpiritualRoadmapJourneyProps> = ({ class
                 🎉 Congratulations! 🎉
               </div>
               <div className="text-lg text-green-600 dark:text-green-400 mb-2">
-                You have reached Jivanmukta level!
+                You have reached Bhakti level!
               </div>
               <div className="text-sm text-green-600 dark:text-green-400">
                 You've achieved the highest spiritual level. Keep practicing for continued growth!
@@ -303,7 +293,7 @@ const SpiritualRoadmapJourney: React.FC<SpiritualRoadmapJourneyProps> = ({ class
       {/* Text above roadmap - minimal space */}
       <div className="text-center">
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          To see the achievement go to activity calendar
+          Daily target of 2100 jaapa must complete
         </p>
       </div>
 
@@ -403,7 +393,7 @@ const SpiritualRoadmapJourney: React.FC<SpiritualRoadmapJourneyProps> = ({ class
               🎉 Congratulations! 🎉
             </div>
             <div className="text-lg text-green-600 dark:text-green-400 mb-2">
-              You have reached Jivanmukta level!
+              You have reached Bhakti level!
             </div>
             <div className="text-sm text-green-600 dark:text-green-400">
               You've achieved the highest spiritual level. Keep practicing for continued growth!

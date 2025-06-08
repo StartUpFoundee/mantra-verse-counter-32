@@ -1,4 +1,3 @@
-
 import React from 'react';
 import ModernCard from './ModernCard';
 
@@ -18,7 +17,7 @@ interface SpiritualJourneyLevelsProps {
 export const spiritualLevels: SpiritualLevel[] = [
   {
     name: "Rogi",
-    icon: "",
+    icon: "🤒",
     range: "0 jaaps",
     minJaaps: 0,
     maxJaaps: 0,
@@ -27,48 +26,40 @@ export const spiritualLevels: SpiritualLevel[] = [
   {
     name: "Bhogi",
     icon: "🍯",
-    range: "1-108",
+    range: "1-308",
     minJaaps: 1,
-    maxJaaps: 108,
+    maxJaaps: 308,
     color: "bg-amber-100 text-amber-800 border-amber-300"
   },
   {
     name: "Yogi",
     icon: "🧘‍♂️",
-    range: "109-500",
-    minJaaps: 109,
-    maxJaaps: 500,
+    range: "309-508",
+    minJaaps: 309,
+    maxJaaps: 508,
     color: "bg-blue-100 text-blue-800 border-blue-300"
   },
   {
     name: "Sadhak",
     icon: "🕉️",
-    range: "501-1000",
-    minJaaps: 501,
-    maxJaaps: 1000,
+    range: "509-708",
+    minJaaps: 509,
+    maxJaaps: 708,
     color: "bg-teal-100 text-teal-800 border-teal-300"
   },
   {
     name: "Tapasvi",
     icon: "🔥",
-    range: "1001-1500",
-    minJaaps: 1001,
-    maxJaaps: 1500,
+    range: "709-1007",
+    minJaaps: 709,
+    maxJaaps: 1007,
     color: "bg-orange-100 text-orange-800 border-orange-300"
   },
   {
-    name: "Rishi",
-    icon: "🔱",
-    range: "1501-2100",
-    minJaaps: 1501,
-    maxJaaps: 2100,
-    color: "bg-purple-100 text-purple-800 border-purple-300"
-  },
-  {
-    name: "Jivanmukta",
-    icon: "🧘‍♀️",
-    range: "2100+",
-    minJaaps: 2100,
+    name: "Bhakti",
+    icon: "🙏",
+    range: "1008+",
+    minJaaps: 1008,
     maxJaaps: null,
     color: "bg-pink-100 text-pink-800 border-pink-300"
   }
