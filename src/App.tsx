@@ -46,6 +46,7 @@ const AuthenticatedApp: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, currentUser, isLoading } = useBulletproofAuth();
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [hasInitializedAuth, setHasInitializedAuth] = useState(false);
 
   useEffect(() => {
@@ -67,11 +68,16 @@ const AuthenticatedApp: React.FC = () => {
   }, [isLoading]);
 
   useEffect(() => {
-    // Handle post-login redirect with minimal delay
+    // Handle post-login transition with animation only on login page
     if (isAuthenticated && currentUser && location.pathname === '/' && hasInitializedAuth) {
-      console.log('User authenticated, redirecting to home');
-      // Immediate redirect without loading animation
-      navigate('/home', { replace: true });
+      setIsTransitioning(true);
+      console.log('User authenticated, redirecting to home with transition');
+      
+      // Show loading animation for smoother transition
+      setTimeout(() => {
+        navigate('/home', { replace: true });
+        setIsTransitioning(false);
+      }, 800); // Reduced transition time
     }
   }, [isAuthenticated, currentUser, navigate, location.pathname, hasInitializedAuth]);
 
@@ -80,11 +86,16 @@ const AuthenticatedApp: React.FC = () => {
     return <LoadingScreen message="Checking authentication..." />;
   }
 
+  // Show transition loading after login
+  if (isTransitioning) {
+    return <LoadingScreen message="Welcome back! Loading your spiritual journey..." />;
+  }
+
   // Show identity system if not authenticated
   if (!isAuthenticated && hasInitializedAuth) {
     return <IdentitySystem onAuthSuccess={() => {
-      console.log('Auth success, redirecting immediately');
-      // No loading state, just direct navigation
+      console.log('Auth success, starting transition');
+      setIsTransitioning(true);
     }} />;
   }
 

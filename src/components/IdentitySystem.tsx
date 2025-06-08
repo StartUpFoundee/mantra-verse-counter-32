@@ -28,7 +28,6 @@ const IdentitySystem: React.FC<IdentitySystemProps> = ({ onAuthSuccess }) => {
   const handleAccountCreated = (accountCreated: boolean) => {
     if (accountCreated) {
       // Account was created and user is automatically logged in
-      // Directly call onAuthSuccess without delay
       onAuthSuccess();
     }
   };
