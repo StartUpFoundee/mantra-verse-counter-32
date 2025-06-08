@@ -1,12 +1,11 @@
 
 import React, { useState } from 'react';
 import { useBulletproofAuth } from '@/hooks/useBulletproofAuth';
-import ImprovedBulletproofAccountSelector from './ImprovedBulletproofAccountSelector';
-import MultiStepAccountCreation from './MultiStepAccountCreation';
+import MobileAccountCreation from './MobileAccountCreation';
 import BulletproofLoginDialog from './BulletproofLoginDialog';
 import OnboardingController from './OnboardingController';
 
-export type IdentityView = 'onboarding' | 'selector' | 'create' | 'login';
+export type IdentityView = 'onboarding' | 'mobile-creation' | 'login';
 
 interface IdentitySystemProps {
   onAuthSuccess: () => void;
@@ -23,27 +22,13 @@ const IdentitySystem: React.FC<IdentitySystemProps> = ({ onAuthSuccess }) => {
   }
 
   const handleOnboardingComplete = () => {
-    setCurrentView('selector');
-  };
-
-  const handleCreateAccount = (slot: number) => {
-    setSelectedSlot(slot);
-    setCurrentView('create');
-  };
-
-  const handleSelectAccount = (slot: number) => {
-    setSelectedSlot(slot);
-    setCurrentView('login');
+    setCurrentView('mobile-creation');
   };
 
   const handleAccountCreated = (accountCreated: boolean) => {
     if (accountCreated) {
       // Account was created and user is automatically logged in
       onAuthSuccess();
-    } else {
-      // User cancelled or error occurred, go back to selector
-      setCurrentView('selector');
-      setSelectedSlot(null);
     }
   };
 
@@ -53,22 +38,13 @@ const IdentitySystem: React.FC<IdentitySystemProps> = ({ onAuthSuccess }) => {
   };
 
   const handleCancel = () => {
-    setCurrentView('selector');
+    setCurrentView('mobile-creation');
     setSelectedSlot(null);
   };
 
   switch (currentView) {
     case 'onboarding':
       return <OnboardingController onComplete={handleOnboardingComplete} />;
-
-    case 'create':
-      return (
-        <MultiStepAccountCreation
-          targetSlot={selectedSlot!}
-          onComplete={handleAccountCreated}
-          onCancel={handleCancel}
-        />
-      );
 
     case 'login':
       return (
@@ -81,9 +57,8 @@ const IdentitySystem: React.FC<IdentitySystemProps> = ({ onAuthSuccess }) => {
 
     default:
       return (
-        <ImprovedBulletproofAccountSelector
-          onCreateAccount={handleCreateAccount}
-          onSelectAccount={handleSelectAccount}
+        <MobileAccountCreation
+          onComplete={handleAccountCreated}
         />
       );
   }
